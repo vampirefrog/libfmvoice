@@ -2,13 +2,11 @@ AR=ar
 CC=gcc
 CFLAGS=-Wall -O2
 LDFLAGS=-lz -lm
+PROGS=dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump
 
 .PHONY: all
 
-all: dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump
-
-libopmfile.a: opm_file.o
-	ar rcs $@ $^
+all: $(PROGS)
 
 dmpdump: dmpdump.o dmp_file.o tools.o
 	$(CC) $^ $(LDFLAGS) -o $@
@@ -31,4 +29,4 @@ y12dump: y12dump.o y12_file.o tools.o
 -include $(OBJS:.o=.d)
 
 clean:
-	rm -f *.o *.a
+	rm -f *.o *.a *.d $(PROGS)
