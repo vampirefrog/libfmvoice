@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define OPM_FILE_MAX_VOICES 256
 #define OPM_FILE_MAX_NAME 256
 
 struct opm_file_operator {
