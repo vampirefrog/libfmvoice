@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "tfi_file.h"
 
 /*
@@ -43,5 +45,10 @@ int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 }
 
 void tfi_file_dump(struct tfi_file *f) {
-
+	printf("alg=%d fb=%d\n", f->alg, f->fb);
+	printf("OP MUL DT TL RS AR DR SR RR SL SSG-EG\n");
+	for(int i = 0; i < 4; i++) {
+		struct tfi_file_operator *op = f->operators + i;
+		printf("%d  %d %d %d %d %d %d %d %d %d %d\n", i, op->mul, op->dt, op->tl, op->rs, op->ar, op->dr, op->sr, op->rr, op->sl, op->ssg_eg);
+	}
 }

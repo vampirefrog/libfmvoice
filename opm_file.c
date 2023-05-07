@@ -370,5 +370,15 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 }
 
 void opm_file_dump(struct opm_file *f) {
-
+	for(int i = 0; i < OPM_FILE_MAX_VOICES; i++) {
+		struct opm_file_voice *v = f->voices + i;
+		printf("@:%d %s\n", i, v->name);
+		printf("LFO: %d %d %d %d %d\n", v->lfo_lfrq, v->lfo_amd, v->lfo_pmd, v->lfo_wf, v->nfrq);
+		printf("CH: %d %d %d %d %d %d %d\n", v->ch_pan, v->ch_fl, v->ch_con, v->ch_ams, v->ch_pms, v->ch_slot, v->ch_ne);
+		printf("OP: AR D1R D2R RR D1L TL KS MUL DT1 DT2 AME\n");
+		for(int j = 0; j < 4; j++) {
+			struct opm_file_operator *o = v->operators + j;
+			printf("%s: %d %d %d %d %d %d %d %d %d %d %d\n", opm_file_operator_name(i), o->ar, o->d1r, o->d2r, o->rr, o->d1l, o->tl, o->ks, o->mul, o->dt1, o->dt2, o->ame);
+		}
+	}
 }
