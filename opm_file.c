@@ -7,6 +7,14 @@ void opm_file_init(struct opm_file *f) {
 	memset(f, 0, sizeof(*f));
 }
 
+int opm_file_push_voice(struct opm_file *opm, struct opm_file_voice *v) {
+	opm->num_voices++;
+	opm->voices = realloc(opm->voices, opm->num_voices * sizeof(opm->voices[0]));
+	if(!opm->voices) return -1;
+	memcpy(&opm->voices[opm->num_voices - 1], v, sizeof(*v));
+	return 0;
+}
+
 int opm_file_load(struct opm_file *opm, uint8_t *data, size_t data_len) {
 	if(data_len < 30) return -1;
 
@@ -218,25 +226,22 @@ ALL_STATES
 					APPEND_DIGIT;
 				} else {
 					digits[digitNum] = 0;
-					opm->num_voices++;
-					opm->voices = realloc(opm->voices, opm->num_voices * sizeof(opm->voices[0]));
-					if(!opm->voices) return -1;
-					struct opm_file_voice *v = opm->voices + opm->num_voices - 1;
-					v->number = atoi(digits);
-					v->lfo_lfrq = 0;
-					v->lfo_amd = 0;
-					v->lfo_pmd = 0;
-					v->lfo_wf = 0;
-					v->nfrq = 0;
-					v->ch_pan = 64;
-					v->ch_fl = 7;
-					v->ch_con = 4;
-					v->ch_ams = 0;
-					v->ch_pms = 0;
-					v->ch_slot = 0x78;
-					v->ch_ne = 0;
+					struct opm_file_voice v;
+					v.number = atoi(digits);
+					v.lfo_lfrq = 0;
+					v.lfo_amd = 0;
+					v.lfo_pmd = 0;
+					v.lfo_wf = 0;
+					v.nfrq = 0;
+					v.ch_pan = 64;
+					v.ch_fl = 7;
+					v.ch_con = 4;
+					v.ch_ams = 0;
+					v.ch_pms = 0;
+					v.ch_slot = 0x78;
+					v.ch_ne = 0;
 					for(int j = 0; j < 4; j++) {
-						struct opm_file_operator *o = v->operators + j;
+						struct opm_file_operator *o = v.operators + j;
 						o->ar = 0;
 						o->d1r = 0;
 						o->d2r = 0;
@@ -249,6 +254,7 @@ ALL_STATES
 						o->dt2 = 0;
 						o->ame = 0;
 					}
+					if(opm_file_push_voice(opm, &v)) return -1;
 
 					if(isspace(c)) {
 						state = AfterVoiceNum;
@@ -302,8 +308,8 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 	WRITEF("//MiOPMdrv sound bank Paramer Ver2002.04.22\n");
 	WRITEF("//LFO: LFRQ AMD PMD WF NFRQ\n");
 	WRITEF("//@:[Num] [Name]\n");
-	WRITEF("//CH: PAN	FL CON AMS PMS SLOT NE\n");
-	WRITEF("//[OPname]: AR D1R D2R	RR D1L	TL	KS MUL DT1 DT2 AMS-EN\n");
+	WRITEF("//CH: PAN FL CON AMS PMS SLOT NE\n");
+	WRITEF("//[OPname]: AR D1R D2R RR D1L  TL KS MUL DT1 DT2 AMS-EN\n");
 
 	for(int i = 0; i < f->num_voices; i++) {
 		struct opm_file_voice *v = f->voices + i;
@@ -312,7 +318,7 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 		WRITEF("CH: %d %d %d %d %d %d %d\n", v->ch_pan, v->ch_fl, v->ch_con, v->ch_ams, v->ch_pms, v->ch_slot, v->ch_ne);
 		for(int j = 0; j < 4; j++) {
 			struct opm_file_operator *o = v->operators + j;
-			WRITEF("%s: %d %d %d %d %d %d %d %d %d %d %d\n", opm_file_operator_name(i), o->ar, o->d1r, o->d2r, o->rr, o->d1l, o->tl, o->ks, o->mul, o->dt1, o->dt2, o->ame);
+			WRITEF("%s: %2d  %2d  %2d %2d  %2d %3d %d  %2d %d %d %d\n", opm_file_operator_name(j), o->ar, o->d1r, o->d2r, o->rr, o->d1l, o->tl, o->ks, o->mul, o->dt1, o->dt2, o->ame);
 		}
 	}
 
