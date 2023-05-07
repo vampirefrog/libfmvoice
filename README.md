@@ -1,32 +1,14 @@
 FM voice loading, saving and conversion library
 ===============================================
 
-| Param        | .OPM  | .DMP | .Y12 | .INS |
-|--------------|:-----:|:----:|:----:|:----:|
-| Name         |   ✅  |      |      |      |
-| LFO Freq     |   ✅  |      |      |      |
-| AMD          |   ✅  |      |      |      |
-| PMD          |   ✅  |      |      |      |
-| WF           |   ✅  |      |      |      |
-| Noise Freq   |   ✅  |      |      |      |
-| Pan          |   ✅  |      |      |      |
-| Feedback     |   ✅  |      |      |      |
-| Connection   |   ✅  |      |      |      |
-| AMS          |   ✅  |      |      |      |
-| PMS          |   ✅  |      |      |      |
-| Slot Mask    |   ✅  |      |      |      |
-| Noise Enable |   ✅  |      |      |      |
-| AR           |   ✅  |      |      |      |
-| D1R          |   ✅  |      |      |      |
-| D2R          |   ✅  |      |      |      |
-| RR           |   ✅  |      |      |      |
-| D1L          |   ✅  |      |      |      |
-| TL           |   ✅  |      |      |      |
-| KS           |   ✅  |      |      |      |
-| MUL          |   ✅  |      |      |      |
-| DT1          |   ✅  |      |      |      |
-| DT2          |   ✅  |      |      |      |
-| AMS Enable   |   ✅  |      |      |      |
+File Formats
+------------
+
+* [https://vgmrips.net/wiki/INS_File_Format INS format]
+* [https://vgmrips.net/wiki/DMP_File_Format DMP format]
+* [https://vgmrips.net/wiki/OPM_File_Format OPM format]
+* [https://vgmrips.net/wiki/TFI_File_Format TFI format]
+* [https://vgmrips.net/wiki/Y12_File_Format Y12 format]
 
 OPM files
 ---------
@@ -58,18 +40,3 @@ FILE *f = fopen("out.opm", "w");
 int opm_file_save(&opm, write_fn, f);
 fclose(f);
 ```
-
-TFI files
----------
-
-TFI files are 42 byte 4-operator OPN FM voices for [Shiru](https://shiru.untergrund.net/index.shtml)'s [TFM Music Maker](https://www.pouet.net/prod.php?which=53467).
-
-Voice libraries:
-
-* The archive [tfmmaker10.rar](http://www.nedopc.com/TURBOSOUND/TFMMAKER/tfmmaker10.rar) from [this thread](http://gendev.spritesmind.net/forum/viewtopic.php?t=125) contains some `.tfi` and `.y12` voice files.
-* The archive [tfmmaker152.rar](https://ftp.untergrund.net/users/havoc/POUET/dropbox_backup/tfmmaker152.rar) from [here](https://www.pouet.net/prod.php?which=53467) contains `.tfi`, `.y12` and `.ins` files.
-
-Specification:
-
-* [VGMRips Specification](https://vgmrips.net/wiki/TFI_File_Format)
-* [Other specification, includes VGI](https://plutiedev.com/format-tfi)
