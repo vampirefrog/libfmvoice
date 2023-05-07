@@ -313,6 +313,7 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 
 	for(int i = 0; i < f->num_voices; i++) {
 		struct opm_file_voice *v = f->voices + i;
+		WRITEF("\n");
 		WRITEF("@:%d %s\n", i, v->name);
 		WRITEF("LFO: %d %d %d %d %d\n", v->lfo_lfrq, v->lfo_amd, v->lfo_pmd, v->lfo_wf, v->nfrq);
 		WRITEF("CH: %d %d %d %d %d %d %d\n", v->ch_pan, v->ch_fl, v->ch_con, v->ch_ams, v->ch_pms, v->ch_slot, v->ch_ne);
@@ -323,13 +324,14 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 	}
 
 	for(int i = f->num_voices; i < pad_to; i++) {
-		printf("@:%d no Name\n", i);
-		printf("LFO: 0 0 0 0 0\n");
-		printf("CH: 64 0 0 0 0 64 0\n");
-		printf("M1: 31 0 0 4 0 0 0 1 0 0 0\n");
-		printf("C1: 31 0 0 4 0 0 0 1 0 0 0\n");
-		printf("M2: 31 0 0 4 0 0 0 1 0 0 0\n");
-		printf("C2: 31 0 0 4 0 0 0 1 0 0 0\n");
+		WRITEF("\n");
+		WRITEF("@:%d no Name\n", i);
+		WRITEF("LFO: 0 0 0 0 0\n");
+		WRITEF("CH: 64 0 0 0 0 64 0\n");
+		WRITEF("M1: 31 0 0 4 0 0 0 1 0 0 0\n");
+		WRITEF("C1: 31 0 0 4 0 0 0 1 0 0 0\n");
+		WRITEF("M2: 31 0 0 4 0 0 0 1 0 0 0\n");
+		WRITEF("C2: 31 0 0 4 0 0 0 1 0 0 0\n");
 	}
 
 #undef WRITEF
