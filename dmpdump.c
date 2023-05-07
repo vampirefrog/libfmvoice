@@ -3,8 +3,6 @@
 #include "dmp_file.h"
 #include "tools.h"
 
-int opt_system = DMP_FILE_GENESIS;
-
 int main(int argc, char **argv) {
 	for(int i = 1; i < argc; i++) {
 		size_t data_len;
@@ -14,7 +12,7 @@ int main(int argc, char **argv) {
 			continue;
 		}
 		struct dmp_file dmp;
-		if(dmp_file_load(&dmp, data, data_len, opt_system) != 0) {
+		if(dmp_file_load(&dmp, data, data_len, DMP_FILE_GENESIS) != 0) {
 			fprintf(stderr, "Could not load %s\n", argv[i]);
 			continue;
 		}
