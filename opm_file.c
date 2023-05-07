@@ -323,9 +323,9 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 void opm_file_dump(struct opm_file *f) {
 	for(int i = 0; i < f->num_voices; i++) {
 		struct opm_file_voice *v = f->voices + i;
-		printf("@:%d %s\n", v->number, v->name);
-		printf("LFO: %d %d %d %d %d\n", v->lfo_lfrq, v->lfo_amd, v->lfo_pmd, v->lfo_wf, v->nfrq);
-		printf("CH: %d %d %d %d %d %d %d\n", v->ch_pan, v->ch_fl, v->ch_con, v->ch_ams, v->ch_pms, v->ch_slot, v->ch_ne);
+		printf("%d number=%d name=%s\n", i, v->number, v->name);
+		printf("LFO: lfrq=%d amd=%d pmd=%d wf=%d nfrq=%d\n", v->lfo_lfrq, v->lfo_amd, v->lfo_pmd, v->lfo_wf, v->nfrq);
+		printf("CH: pan=%d fl=%d con=%d ams=%d pms=%d slot=%d ne=%d\n", v->ch_pan, v->ch_fl, v->ch_con, v->ch_ams, v->ch_pms, v->ch_slot, v->ch_ne);
 		printf("OP: AR D1R D2R RR D1L TL KS MUL DT1 DT2 AME\n");
 		for(int j = 0; j < 4; j++) {
 			struct opm_file_operator *o = v->operators + j;
