@@ -34,3 +34,6 @@ int ins_file_load(struct ins_file *f, uint8_t *data, size_t data_len) {
 
 	return 0;
 }
+
+void ins_file_dump(struct ins_file *f) {
+}

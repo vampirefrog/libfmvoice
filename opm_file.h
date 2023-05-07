@@ -25,5 +25,6 @@ struct opm_file {
 void opm_file_init(struct opm_file *f);
 int opm_file_load(struct opm_file *f, uint8_t *data, size_t data_len);
 int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
+void opm_file_dump(struct opm_file *f);
 
 #endif /* OPM_FILE_H_ */

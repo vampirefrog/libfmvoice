@@ -53,3 +53,28 @@ int dmp_file_load(struct dmp_file *f, uint8_t *data, size_t data_len, int system
 
 	return 0;
 }
+
+void dmp_file_dump(struct dmp_file *dmp) {
+	printf("version=%d mode=%d\n", dmp->version, dmp->mode);
+	if(dmp->mode != 1) return;
+	// operators, lfo, fb, alg, lfo2
+	printf("num_operators=%d lfo+%d fb=%d alg=%d lfo2=%d\n", dmp->num_operators, dmp->lfo, dmp->fb, dmp->alg, dmp->lfo2);
+	// operators
+	printf("OP MUL AR DR SL RR AM KSR DT D2R SSG\n");
+	for(int i = 0; i < 4; i++) {
+		printf(
+			"%d %d %d %d %d %d %d %d %d %d %d\n",
+			dmp->operators[i].mult,
+			dmp->operators[i].tl,
+			dmp->operators[i].ar,
+			dmp->operators[i].dr,
+			dmp->operators[i].sl,
+			dmp->operators[i].rr,
+			dmp->operators[i].am,
+			dmp->operators[i].ksr,
+			dmp->operators[i].dt,
+			dmp->operators[i].d2r,
+			dmp->operators[i].ssg
+		);
+	}
+}

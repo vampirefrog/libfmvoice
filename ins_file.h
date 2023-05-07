@@ -5,18 +5,18 @@ INS (MVSTracker Instrument)
 ---------------------------
 from "InstrEdit.cpp" and other files in MVSTracker source
 
-$00..$03	"MVSI"
-$04			Version number
-$05...		Instrument Name (null-terminated string)
+$00..$03    "MVSI"
+$04         Version number
+$05...      Instrument Name (null-terminated string)
 
 "v" means "varies" (since it depends on how long the instrument name is)
-$v00..$v03	(mul&15) | ((dt&7) << 4)
-$v04..$v07	(tl&127)
-$v08..$v0B	(rs&3)<<6 | (ar&31)
-$v0C..$v0F	(dr&31)
-$v10..$v13	(sr&31)
-$v14..$v17	(sl&15)<<4 | (rr&15)
-$v18		(feedback&7)<<3 | algo&7
+$v00..$v03  (mul&15) | ((dt&7) << 4)
+$v04..$v07  (tl&127)
+$v08..$v0B  (rs&3)<<6 | (ar&31)
+$v0C..$v0F  (dr&31)
+$v10..$v13  (sr&31)
+$v14..$v17  (sl&15)<<4 | (rr&15)
+$v18        (feedback&7)<<3 | algo&7
 
 */
 
@@ -43,6 +43,9 @@ struct ins_file {
 	uint8_t fb_alg;
 };
 
+void ins_file_init(struct ins_file *f);
 int ins_file_load(struct ins_file *f, uint8_t *data, size_t data_len);
+int ins_file_save(struct ins_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
+void ins_file_dump(struct ins_file *f);
 
 #endif /* INS_FILE_H_ */

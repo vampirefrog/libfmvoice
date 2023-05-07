@@ -16,16 +16,16 @@ void opm_file_init(struct opm_file *f) {
 		v->ch_con = 4;
 		v->ch_ams = 0;
 		v->ch_pms = 0;
-		v->ch_slot = 120;
+		v->ch_slot = 0x78;
 		v->ch_ne = 0;
 		for(int j = 0; j < 4; j++) {
 			struct opm_file_operator *o = v->operators + j;
-			o->ar = 31;
+			o->ar = 0;
 			o->d1r = 0;
 			o->d2r = 0;
-			o->rr = 4;
+			o->rr = 0;
 			o->d1l = 0;
-			o->tl = 0;
+			o->tl = 127;
 			o->ks = 0;
 			o->mul = 1;
 			o->dt1 = 0;
@@ -367,4 +367,8 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 
 #undef WRITEF
 	return 0;
+}
+
+void opm_file_dump(struct opm_file *f) {
+
 }

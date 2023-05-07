@@ -30,3 +30,7 @@ int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 
 	return 0;
 }
+
+void y12_file_dump(struct y12_file *f) {
+
+}

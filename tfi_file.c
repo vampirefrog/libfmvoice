@@ -41,3 +41,7 @@ int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 
 	return 0;
 }
+
+void tfi_file_dump(struct tfi_file *f) {
+
+}

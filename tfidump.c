@@ -1,9 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "dmp_file.h"
+#include "tfi_file.h"
 #include "tools.h"
-
-int opt_system = DMP_FILE_GENESIS;
 
 int main(int argc, char **argv) {
 	for(int i = 1; i < argc; i++) {
@@ -13,14 +11,14 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "Could not open %s\n", argv[i]);
 			continue;
 		}
-		struct dmp_file dmp;
-		if(dmp_file_load(&dmp, data, data_len, opt_system) != 0) {
+		struct tfi_file tfi;
+		if(tfi_file_load(&tfi, data, data_len) != 0) {
 			fprintf(stderr, "Could not load %s\n", argv[i]);
 			continue;
 		}
 
 		printf("%s\n", argv[i]);
-		dmp_file_dump(&dmp);
+		tfi_file_dump(&tfi);
 	}
 	return 0;
 }

@@ -22,6 +22,9 @@ struct y12_file {
 	struct y12_file_operator operators[4];
 };
 
+void y12_file_init(struct y12_file *f);
 int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len);
+int y12_file_save(struct y12_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
+void y12_file_dump(struct y12_file *f);
 
 #endif /* Y12_H_ */
