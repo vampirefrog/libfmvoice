@@ -56,3 +56,11 @@ dkms.conf
 *.ins
 *.tfi
 *.y12
+
+opmdump
+insdump
+dmpdump
+tfidump
+y12dump
+dx21dump
+fb01dump
