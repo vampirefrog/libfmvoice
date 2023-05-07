@@ -4,11 +4,11 @@ FM voice loading, saving and conversion library
 File Formats
 ------------
 
-* [https://vgmrips.net/wiki/INS_File_Format INS format]
-* [https://vgmrips.net/wiki/DMP_File_Format DMP format]
-* [https://vgmrips.net/wiki/OPM_File_Format OPM format]
-* [https://vgmrips.net/wiki/TFI_File_Format TFI format]
-* [https://vgmrips.net/wiki/Y12_File_Format Y12 format]
+* [INS format](https://vgmrips.net/wiki/INS_File_Format)
+* [DMP format](https://vgmrips.net/wiki/DMP_File_Format)
+* [OPM format](https://vgmrips.net/wiki/OPM_File_Format)
+* [TFI format](https://vgmrips.net/wiki/TFI_File_Format)
+* [Y12 format](https://vgmrips.net/wiki/Y12_File_Format)
 
 OPM files
 ---------
