@@ -11,6 +11,10 @@ File Formats
 | [OPM](https://vgmrips.net/wiki/OPM_File_Format) | OPM | 4 | unlimited |
 | [TFI](https://vgmrips.net/wiki/TFI_File_Format) | OPN | 4 | 1 |
 | [Y12](https://vgmrips.net/wiki/Y12_File_Format) | OPN | 4 | 1 |
+| [INS](https://moddingwiki.shikadi.net/wiki/AdLib_Instrument_Format) | OPL | 2 | 1 |
+| [BNK](https://moddingwiki.shikadi.net/wiki/AdLib_Instrument_Bank_Format) | OPL | 2 | 65536 |
+| [IBK](https://moddingwiki.shikadi.net/wiki/IBK_Format) | OPL | 2 | 128 |
+| [CMF](https://moddingwiki.shikadi.net/wiki/CMF_Format) | OPL | 2 | 128/256/65536 |
 
 OPM files
 ---------
