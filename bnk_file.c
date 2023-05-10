@@ -60,16 +60,14 @@ void bnk_file_dump(struct bnk_file *f) {
 	for(int i = 0; i < f->num_instruments; i++) {
 		printf("Name %d: index=%d flags=0x%02x name=\"%.8s\"\n", i, f->names[i].index, f->names[i].flags, f->names[i].name);
 		if((f->names[i].flags & 1) == 0) continue;
-	}
 
-	for(int i = 0; i < f->num_instruments; i++) {
 		struct bnk_file_instrument *inst = f->instruments + i;
-		printf("instrument %d: percussive=%d voice_num=%d con=%d\n", i, inst->percussive, inst->voice_num, inst->operators[0].con);
-		printf("OP KSL MUL  FB AR SL EG DR RR TL AM VIB KSR WAVE\n");
+		printf("Inst. %d: percussive=%d voice_num=%d con=%d fb=%d\n", i, inst->percussive, inst->voice_num, inst->operators[0].con, inst->operators[0].fb);
+		printf("OP KSL MUL AR SL EG DR RR TL AM VIB KSR WAVE\n");
 		for(int j = 0; j < 2; j++) {
 			struct bnk_file_operator *op = inst->operators + j;
-			printf("%2d  %2d  %2d %3d %2d %2d %2d %2d %2d %2d %2d  %2d  %2d    %d\n", j, op->ksl, op->mul, op->fb, op->ar, op->sl, op->eg, op->dr, op->rr, op->tl, op->am, op->vib, op->ksr, op->con, op->wave_sel);
-			if(inst->percussive) break;
+			printf("%2d  %2d  %2d %2d %2d %2d %2d %2d %2d %2d  %2d  %2d    %d\n", j, op->ksl, op->mul, op->ar, op->sl, op->eg, op->dr, op->rr, op->tl, op->am, op->vib, op->ksr, op->wave_sel);
+			if(inst->percussive && inst->voice_num != 6) break;
 		}
 	}
 }
