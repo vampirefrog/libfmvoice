@@ -306,8 +306,8 @@ int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsi
 }
 
 	WRITEF("//MiOPMdrv sound bank Paramer Ver2002.04.22\n");
-	WRITEF("//LFO: LFRQ AMD PMD WF NFRQ\n");
 	WRITEF("//@:[Num] [Name]\n");
+	WRITEF("//LFO: LFRQ AMD PMD WF NFRQ\n");
 	WRITEF("//CH: PAN FL CON AMS PMS SLOT NE\n");
 	WRITEF("//[OPname]: AR D1R D2R RR D1L  TL KS MUL DT1 DT2 AMS-EN\n");
 
