@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include "bnk_file.h"
 
+void bnk_file_init(struct bnk_file *f) {
+	memset(f, 0, sizeof(*f));
+}
+
 int bnk_file_load(struct bnk_file *f, uint8_t *data, size_t data_len) {
 	f->ver_major = data[0];
 	f->ver_minor = data[1];
