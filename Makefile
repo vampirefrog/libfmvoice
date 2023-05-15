@@ -26,6 +26,8 @@ bnkdump: bnkdump.o bnk_file.o tools.o
 	$(CC) $^ $(LDFLAGS) -o $@
 sbidump: sbidump.o sbi_file.o tools.o
 	$(CC) $^ $(LDFLAGS) -o $@
+op3dump: op3dump.o op3_file.o tools.o
+	$(CC) $^ $(LDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -MMD -c $< -o $@
