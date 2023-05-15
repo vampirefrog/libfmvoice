@@ -1,6 +1,10 @@
 FM voice loading, saving and conversion library
 ===============================================
 
+Code for loading and saving various FM voice formats meant for the Yamaha YM series of chips (OPL, OPM, OPN etc.), format autodetection code, and conversion between the various formats.
+
+This library is meant to be used in [fmtoy](https://github.com/vampirefrog/fmtoy) and [vgm2x](https://github.com/vampirefrog/vgm2x).
+
 File Formats
 ------------
 
