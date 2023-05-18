@@ -130,7 +130,6 @@ ALL_STATES
 					default:
 						fprintf(stderr, "Unexpected '%c' (%d) at start of line %d\n", CHAR_DOT(c), c, line);
 						return -1;
-						break;
 				}
 				break;
 			case Slash:

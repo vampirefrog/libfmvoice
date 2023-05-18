@@ -2,12 +2,14 @@ AR=ar
 CC=gcc
 CFLAGS=-Wall -O2
 LDFLAGS=-lz -lm
-PROGS=dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdump sbidump
+PROGS=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdump sbidump
 
 .PHONY: all
 
 all: $(PROGS)
 
+fmbankdump: fmbankdump.o tools.o fm_voice.o op3_file.o opm_file.o
+	$(CC) $^ $(LDFLAGS) -o $@
 dmpdump: dmpdump.o dmp_file.o tools.o
 	$(CC) $^ $(LDFLAGS) -o $@
 dx21dump: dx21dump.o syx_dx21.o tools.o
