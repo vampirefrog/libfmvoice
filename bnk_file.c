@@ -65,7 +65,8 @@ void bnk_file_dump(struct bnk_file *f) {
 		printf("Name %d: index=%d flags=0x%02x name=\"%.8s\"\n", i, f->names[i].index, f->names[i].flags, f->names[i].name);
 		if((f->names[i].flags & 1) == 0) continue;
 
-		struct bnk_file_instrument *inst = f->instruments + i;
+		if(f->names[i].index >= f->num_instruments) continue;
+		struct bnk_file_instrument *inst = f->instruments + f->names[i].index;
 		printf("Inst. %d: percussive=%d voice_num=%d con=%d fb=%d\n", i, inst->percussive, inst->voice_num, inst->operators[0].con, inst->operators[0].fb);
 		printf("OP KSL MUL AR SL EG DR RR TL AM VIB KSR WAVE\n");
 		for(int j = 0; j < 2; j++) {
