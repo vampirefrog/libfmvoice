@@ -4,6 +4,7 @@
 #include "fm_voice.h"
 #include "op3_file.h"
 #include "opm_file.h"
+#include "bnk_file.h"
 
 void opl_voice_dump(struct opl_voice *v) {
 	printf("name=%.256s\n", v->name);
@@ -31,24 +32,24 @@ void opl_voice_dump(struct opl_voice *v) {
 		v->dam_dvb_ryt_bd_sd_tom_tc_hh >> 1 & 1,
 		v->dam_dvb_ryt_bd_sd_tom_tc_hh & 1
 	);
-	printf("OP: AM VIB EG KSR MUL KSL TL AR DR SL RR WS\n");
+	printf("OP: AR DR SL RR TL MUL EG AM VIB KSR KSL WS\n");
 	for(int i = 0; i < 4; i++) {
 		if(!v->en_4op && i >= 2) break;
 		struct opl_voice_operator *op = &v->operators[i];
 		printf(
-			"%2d: %2d %3d %2d %3d %3d %3d %2d %2d %2d %2d %2d %2d\n",
+			"%2d: %2d %2d %2d %2d %2d %3d %2d %2d %3d %3d %3d %2d\n",
 			i,
-			op->am_vib_eg_ksr_mul >> 7,
-			op->am_vib_eg_ksr_mul >> 6 & 1,
-			op->am_vib_eg_ksr_mul >> 5 & 1,
-			op->am_vib_eg_ksr_mul >> 4 & 1,
-			op->am_vib_eg_ksr_mul & 0x0f,
-			op->ksl_tl >> 6,
-			op->ksl_tl & 0x3f,
 			op->ar_dr >> 4,
 			op->ar_dr & 0x0f,
 			op->sl_rr >> 4,
 			op->sl_rr & 0x0f,
+			op->ksl_tl & 0x3f,
+			op->am_vib_eg_ksr_mul & 0x0f,
+			op->am_vib_eg_ksr_mul >> 5 & 1,
+			op->am_vib_eg_ksr_mul >> 7,
+			op->am_vib_eg_ksr_mul >> 6 & 1,
+			op->am_vib_eg_ksr_mul >> 4 & 1,
+			op->ksl_tl >> 6,
 			op->ws & 0x07
 		);
 	}
@@ -266,6 +267,36 @@ int fm_voice_bank_append_opm_file(struct fm_voice_bank *bank, struct opm_file *f
 	return 0;
 }
 
+int fm_voice_bank_append_bnk_file(struct fm_voice_bank *bank, struct bnk_file *f) {
+	struct opl_voice *voice = fm_voice_bank_reserve_opl_voices(bank, f->num_used);
+	if(!voice) return -1;
+	for(int i = 0, u = 0; i < f->num_instruments; i++) {
+		struct bnk_file_name *n = &f->names[i];
+		if((n->flags & 1) == 0) continue;
+		struct bnk_file_instrument *inst = &f->instruments[n->index];
+		memcpy(voice->name, n->name, 8);
+		voice->en_4op = 0;
+		voice->perc_inst = inst->percussive;
+		voice->ch_fb_cnt[0] = (inst->operators[0].fb & 0x07) << 1 | (inst->operators[0].con & 1);
+		voice->ch_fb_cnt[1] = 0;
+		voice->dam_dvb_ryt_bd_sd_tom_tc_hh = 0;
+		for(int i = 0; i < 2; i++) {
+			struct opl_voice_operator *op = &voice->operators[i];
+			struct bnk_file_operator *fop = &inst->operators[i];
+			op->am_vib_eg_ksr_mul = (fop->am & 1) << 7 | (fop->vib & 1) << 6 | (fop->eg & 1) << 5 | (fop->ksr & 1) << 4 | (fop->mul & 0x0f);
+			op->ksl_tl = (fop->ksl & 0x03) << 6 | (fop->tl & 0x3f);
+			op->ar_dr = (fop->ar & 0x0f) << 4 | (fop->dr & 0x0f);
+			op->sl_rr = (fop->sl & 0x0f) << 4 | (fop->rr & 0x0f);
+			op->ws = fop->wave_sel & 0x03;
+		}
+		voice++;
+		u++;
+		if(u >= f->num_used) break;
+	}
+
+	return 0;
+}
+
 int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_len) {
 	struct op3_file op3;
 	if(op3_file_load(&op3, data, data_len) == 0)
@@ -274,6 +305,10 @@ int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_le
 	struct opm_file opm;
 	if(opm_file_load(&opm, data, data_len) == 0)
 		return fm_voice_bank_append_opm_file(bank, &opm);
+
+	struct bnk_file bnk;
+	if(bnk_file_load(&bnk, data, data_len) == 0)
+		return fm_voice_bank_append_bnk_file(bank, &bnk);
 
 	return -1;
 }
