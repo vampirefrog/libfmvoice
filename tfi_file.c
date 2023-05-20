@@ -21,7 +21,7 @@ $0C...		ssg
 */
 
 int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
-	if(data_len < 42) return -1;
+	if(data_len != 42) return -1;
 
 	uint8_t *p = data;
 

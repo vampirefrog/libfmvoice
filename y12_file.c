@@ -5,7 +5,7 @@
 #include "tools.h"
 
 int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
-	if(data_len < 0x80) return -1;
+	if(data_len != 0x80) return -1;
 
 	uint8_t *p = data;
 	for(int i = 0; i < 4; i++) {
