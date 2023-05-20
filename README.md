@@ -21,6 +21,80 @@ File Formats
 | [IBK](https://moddingwiki.shikadi.net/wiki/IBK_Format) | OPL | 2 | 128 |
 | [CMF](https://moddingwiki.shikadi.net/wiki/CMF_Format) | OPL | 2 | 128/256/65536 |
 
+Structures
+----------
+
+OPL
+
+<table>
+	<thead>
+		<tr><th rowspan="2">Field</th><th colspan="8">Bit</th><th rowspan="2">Description</th></tr>
+		<tr><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>ch_fb_cnt[0]</code></td>
+			<td align="center">D</td>
+			<td align="center">C</td>
+			<td align="center">B</td>
+			<td align="center">A</td>
+			<td align="center" colspan="3">FB</td>
+			<td align="center">CNT</td>
+			<td align="center">Channel mask, feedback, connection</td>
+		</tr>
+		<tr>
+			<td><code>dam_dvb_ryt_bd_sd_tom_tc_hh</code></td>
+			<td align="center">AM</td>
+			<td align="center">VIB</td>
+			<td align="center">RYT</td>
+			<td align="center">BD</td>
+			<td align="center">SD</td>
+			<td align="center">TOM</td>
+			<td align="center">TC</td>
+			<td align="center">HH</td>
+			<td align="center"></td>
+		</tr>
+		<tr>
+			<td><code>am_vib_eg_ksr_mul</code></td>
+			<td align="center">AM</td>
+			<td align="center">VIB</td>
+			<td align="center">EGT</td>
+			<td align="center">KSR</td>
+			<td align="center" colspan="4">MUL</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><code>ksl_tl</code></td>
+			<td align="center" colspan="2">KSL</td>
+			<td align="center" colspan="6">TL</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><code>ar_dr</code></td>
+			<td align="center" colspan="4">AR</td>
+			<td align="center" colspan="4">DR</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><code>sl_rr</code></td>
+			<td align="center" colspan="4">SL</td>
+			<td align="center" colspan="4">RR</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><code>ws</code></td>
+			<td align="center" colspan="5"></td>
+			<td align="center" colspan="3">WS</td>
+			<td>Waveform select</td>
+		</tr>
+	</tbody>
+</table>
+
+Conversion
+----------
+
+Conversion between OPL, OPM and OPN voices is only possible in some cases, in other cases it involves approximation, and in others it is not possible.
+
 OPM files
 ---------
 
