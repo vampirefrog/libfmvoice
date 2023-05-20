@@ -8,7 +8,7 @@ PROGS=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdu
 
 all: $(PROGS)
 
-fmbankdump: fmbankdump.o tools.o fm_voice.o op3_file.o opm_file.o bnk_file.o
+fmbankdump: fmbankdump.o tools.o fm_voice.o op3_file.o opm_file.o bnk_file.o ins_file.o sbi_file.o tfi_file.o y12_file.o syx_dx21.o syx_fb01.o dmp_file.o
 	$(CC) $^ $(LDFLAGS) -o $@
 dmpdump: dmpdump.o dmp_file.o tools.o
 	$(CC) $^ $(LDFLAGS) -o $@

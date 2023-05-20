@@ -2,9 +2,18 @@
 #include <string.h>
 
 #include "fm_voice.h"
+#include "bnk_file.h"
+#include "dmp_file.h"
 #include "op3_file.h"
 #include "opm_file.h"
-#include "bnk_file.h"
+#include "ins_file.h"
+#include "sbi_file.h"
+#include "tfi_file.h"
+#include "y12_file.h"
+#include "syx_dx21.h"
+#include "syx_fb01.h"
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 void opl_voice_dump(struct opl_voice *v) {
 	printf("name=%.256s\n", v->name);
@@ -81,8 +90,28 @@ void opm_voice_dump(struct opm_voice *v) {
 	}
 }
 
-void opn_voice_dump(struct opn_voice *) {
-
+void opn_voice_dump(struct opn_voice *v) {
+	printf("%.256s\n", v->name);
+	printf("lfo=%d slot=%c%c%c%c fb=%d con=%d pan=%c%c ams=%d pms=%d\n", v->lfo, v->slot & 0x80 ? '4' : '-', v->slot & 0x40 ? '3' : '-', v->slot & 0x20 ? '2' : '-', v->slot & 0x10 ? '1' : '-', v->fb_con >> 3 & 0x07, v->fb_con & 0x07, v->lr_ams_pms & 0x80 ? 'L' : '-', v->lr_ams_pms & 0x40 ? 'R' : '-', v->lr_ams_pms >> 4 & 0x03, v->lr_ams_pms & 0x07);
+	printf("OP DT MUL  TL KS AR AM DR SR SL RR SSG\n");
+	for(int i = 0; i < 4; i++) {
+		struct opn_voice_operator *op = &v->operators[i];
+		printf(
+			"%2d %2d %3d %3d %2d %2d %2d %2d %2d %2d %2d %3d\n",
+			i,
+			op->dt_mul >> 4 & 0x07,
+			op->dt_mul & 0x0f,
+			op->tl & 0x7f,
+			op->ks_ar >> 6,
+			op->ks_ar & 0x1f,
+			op->am_dr >> 7,
+			op->am_dr & 0x1f,
+			op->sr & 0x1f,
+			op->sl_rr >> 4,
+			op->sl_rr & 0x0f,
+			op->ssg_eg & 0x0f
+		);
+	}
 }
 
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv) {
@@ -252,9 +281,9 @@ int fm_voice_bank_append_opm_file(struct fm_voice_bank *bank, struct opm_file *f
 		voice->rl_fb_con = (v->ch_pan & 0xc0) | (v->ch_fl & 0x07) << 3 | (v->ch_con & 0x07);
 		voice->pms_ams = (v->ch_ams & 0x07) << 4 | (v->ch_pms & 0x03);
 		voice->slot = v->ch_slot >> 3;
-		for(int i = 0; i < 4; i++) {
-			struct opm_voice_operator *op = &voice->operators[i];
-			struct opm_file_operator *fop = &v->operators[i];
+		for(int j = 0; j < 4; j++) {
+			struct opm_voice_operator *op = &voice->operators[j];
+			struct opm_file_operator *fop = &v->operators[j];
 			op->dt1_mul = fop->dt1 << 4 | fop->mul;
 			op->tl = fop->tl;
 			op->ks_ar = fop->ks << 6 | fop->ar;
@@ -280,9 +309,9 @@ int fm_voice_bank_append_bnk_file(struct fm_voice_bank *bank, struct bnk_file *f
 		voice->ch_fb_cnt[0] = (inst->operators[0].fb & 0x07) << 1 | (inst->operators[0].con & 1);
 		voice->ch_fb_cnt[1] = 0;
 		voice->dam_dvb_ryt_bd_sd_tom_tc_hh = 0;
-		for(int i = 0; i < 2; i++) {
-			struct opl_voice_operator *op = &voice->operators[i];
-			struct bnk_file_operator *fop = &inst->operators[i];
+		for(int j = 0; j < 2; j++) {
+			struct opl_voice_operator *op = &voice->operators[j];
+			struct bnk_file_operator *fop = &inst->operators[j];
 			op->am_vib_eg_ksr_mul = (fop->am & 1) << 7 | (fop->vib & 1) << 6 | (fop->eg & 1) << 5 | (fop->ksr & 1) << 4 | (fop->mul & 0x0f);
 			op->ksl_tl = (fop->ksl & 0x03) << 6 | (fop->tl & 0x3f);
 			op->ar_dr = (fop->ar & 0x0f) << 4 | (fop->dr & 0x0f);
@@ -297,18 +326,174 @@ int fm_voice_bank_append_bnk_file(struct fm_voice_bank *bank, struct bnk_file *f
 	return 0;
 }
 
+int fm_voice_bank_append_dmp_file(struct fm_voice_bank *bank, struct dmp_file *f) {
+	return -1;
+}
+
+int fm_voice_bank_append_ins_file(struct fm_voice_bank *bank, struct ins_file *f) {
+	struct opn_voice *voice = fm_voice_bank_reserve_opn_voices(bank, 1);
+	if(!voice) return -1;
+	memcpy(voice->name, f->name, MIN(f->name_len, 256));
+	voice->lfo = 0;
+	voice->slot = 0x0f;
+	voice->fb_con = f->fb_alg;
+	voice->lr_ams_pms = 3 << 6;
+	for(int i = 0; i < 4; i++) {
+		struct opn_voice_operator *op = &voice->operators[i];
+		struct ins_file_operator *fop = &f->operators[i];
+		op->dt_mul = fop->mul_dt;
+		op->tl = fop->tl;
+		op->ks_ar = fop->rs_ar;
+		op->am_dr = fop->dr;
+		op->sr = fop->sr;
+		op->sl_rr = fop->sl_rr;
+		op->ssg_eg = 0;
+	}
+	return 0;
+}
+
+int fm_voice_bank_append_sbi_file(struct fm_voice_bank *bank, struct sbi_file *f) {
+	struct opl_voice *voice = fm_voice_bank_reserve_opl_voices(bank, 1);
+	if(!voice) return -1;
+	memcpy(voice->name, f->name, 32);
+	voice->en_4op = 0;
+	voice->perc_inst = f->perc_voice;
+	voice->ch_fb_cnt[0] = f->fb_con;
+	voice->ch_fb_cnt[1] = 0;
+	for(int i = 0; i < 2; i++) {
+		struct opl_voice_operator *op = &voice->operators[i];
+		op->am_vib_eg_ksr_mul = f->am_vib_eg_ksr_mul[i];
+		op->ksl_tl = f->ksl_tl[i];
+		op->ar_dr = f->ar_dr[i];
+		op->sl_rr = f->sl_rr[i];
+		op->ws = f->ws[i];
+	}
+	return 0;
+}
+
+int fm_voice_bank_append_tfi_file(struct fm_voice_bank *bank, struct tfi_file *f) {
+	struct opn_voice *voice = fm_voice_bank_reserve_opn_voices(bank, 1);
+	if(!voice) return -1;
+	voice->lfo = 0;
+	voice->slot = 0x0f;
+	voice->fb_con = (f->fb & 0x07) << 3 | (f->alg & 0x07);
+	for(int i = 0; i < 4; i++) {
+		struct opn_voice_operator *op = &voice->operators[i];
+		struct tfi_file_operator *fop = &f->operators[i];
+		op->dt_mul = (fop->dt & 0x07) << 3 | (fop->mul & 0x07);
+		op->tl = fop->tl & 0x7f;
+		op->ks_ar = fop->rs << 6 | (fop->ar & 0x1f);
+		op->am_dr = fop->dr & 0x1f;
+		op->sr = fop->sr;
+		op->sl_rr = fop->sl << 4 | (fop->rr & 0x0f);
+		op->ssg_eg = fop->ssg_eg;
+	}
+	return 0;
+}
+
+int fm_voice_bank_append_y12_file(struct fm_voice_bank *bank, struct y12_file *f) {
+	struct opn_voice *voice = fm_voice_bank_reserve_opn_voices(bank, 1);
+	if(!voice) return -1;
+	snprintf(voice->name, 256, "%.*s / %.*s / %.*s", MIN(f->name_len, 16), f->name, MIN(f->dumper_len, 16), f->dumper, MIN(f->game_len, 16), f->game);
+	voice->fb_con = (f->fb & 0x07) << 3 | (f->alg & 0x07);
+	for(int i = 0; i < 4; i++) {
+		struct opn_voice_operator *op = &voice->operators[i];
+		struct y12_file_operator *fop = &f->operators[i];
+		op->dt_mul = fop->mul_dt;
+		op->tl = fop->tl & 0x7f;
+		op->ks_ar = fop->ar_rs;
+		op->am_dr = fop->dr_am;
+		op->sr = fop->sr;
+		op->sl_rr = fop->rr_sl;
+		op->ssg_eg = fop->ssg;
+	}
+	return 0;
+}
+
+int fm_voice_bank_append_dx21_vced(struct fm_voice_bank *bank, struct dx21_vced_voice_bank *f) {
+	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f->num_voices);
+	if(!voice) return -1;
+	for(int i = 0; i < f->num_voices; i++) {
+		struct dx21_vced_voice *v = &f->voices[i];
+		memcpy(voice->name, v->name, 10);
+		voice->rl_fb_con = 3 << 6 | (v->feedback & 0x07) << 3 | (v->algorithm & 0x07);
+		voice->lfrq = 255 * v->lfo_speed / 99;
+		voice->amd = v->lfo_amd * 127 / 99;
+		voice->pmd = v->lfo_pmd * 127 / 99;
+		voice->w = v->lfo_wave;
+		voice->pms_ams = (v->pm_sens & 0x07) << 4 | (v->am_sens && 0x03) >> 1;
+		voice->slot = 0x0f;
+		for(int j = 0; j < 4; j++) {
+			struct opm_voice_operator *op = &voice->operators[j];
+			struct dx21_vced_voice_op *fop = &v->op[j];
+			op->dt1_mul = (fop->detune & 0x07) << 4 | (fop->freq >> 2);
+			op->tl = fop->ol * 127 / 99;
+			op->ks_ar = fop->ksr << 6 | (fop->ar & 0x1f);
+			op->ams_d1r = fop->ame << 7 | (fop->d1r & 0x1f);
+			op->dt2_d2r = fop->d2r & 0x1f;
+			op->d1l_rr = fop->d1l << 4 | (fop->rr & 0x0f);
+			op->ws = fop->opw;
+		}
+		voice++;
+	}
+	return 0;
+}
+
+int fm_voice_bank_append_fb01_bulk(struct fm_voice_bank *bank, struct fb01_bulk_voice_bank *f) {
+	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f->num_voices);
+	if(!voice) return -1;
+	for(int i = 0; i < f->num_voices; i++) {
+		struct fb01_bulk_voice *v = &f->voices[i];
+		memcpy(voice->name, v->name, 7);
+		voice->lfrq = v->lfo_speed;
+		voice->amd = v->am_depth;
+		voice->pmd = v->pm_depth;
+		voice->w = v->lfo_waveform;
+		voice->ne_nfrq = 0;
+		voice->rl_fb_con = 3 << 6 | v->fb_level << 3 | v->algorithm;
+		voice->pms_ams = v->pm_sens << 4 | v->am_sens;
+		voice->slot = 0x0f;
+		for(int j = 0; j < 4; j++) {
+			struct opm_voice_operator *op = &voice->operators[j];
+			struct fb01_bulk_voice_op *fop = &v->op[j];
+			op->dt1_mul = fop->detune << 4 | fop->freq;
+			op->tl = fop->tl & 0x7f;
+			op->ks_ar = fop->ks_rate_depth << 6 | fop->ar;
+			op->ams_d1r = fop->d1r & 0x1f;
+			op->dt2_d2r = fop->d2r & 0x1f;
+			op->d1l_rr = fop->sl << 4 | fop->rr;
+			op->ws = 0;
+		}
+		voice++;
+	}
+	return 0;
+}
+
 int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_len) {
-	struct op3_file op3;
-	if(op3_file_load(&op3, data, data_len) == 0)
-		return fm_voice_bank_append_op3_file(bank, &op3);
+#define TRY_FMT(fmt) struct fmt##_file fmt; if(fmt##_file_load(&fmt, data, data_len) == 0) return fm_voice_bank_append_##fmt##_file(bank, &fmt);
 
-	struct opm_file opm;
-	if(opm_file_load(&opm, data, data_len) == 0)
-		return fm_voice_bank_append_opm_file(bank, &opm);
+	TRY_FMT(op3)
+	TRY_FMT(opm)
+	TRY_FMT(bnk)
 
-	struct bnk_file bnk;
-	if(bnk_file_load(&bnk, data, data_len) == 0)
-		return fm_voice_bank_append_bnk_file(bank, &bnk);
+	struct dmp_file dmp;
+		if(dmp_file_load(&dmp, data, data_len, 1) == 0)
+			return fm_voice_bank_append_dmp_file(bank, &dmp);
+
+	TRY_FMT(ins)
+	TRY_FMT(sbi)
+	TRY_FMT(tfi)
+	TRY_FMT(y12)
+
+	struct dx21_vced_voice_bank dx21_vced_voice_bank;
+	dx21_vced_voice_bank_init(&dx21_vced_voice_bank);
+	if(dx21_vced_voice_bank_from_buffer(&dx21_vced_voice_bank, data, data_len) == 0)
+		return fm_voice_bank_append_dx21_vced(bank, &dx21_vced_voice_bank);
+
+	struct fb01_bulk_voice_bank fb01_bulk_voice_bank;
+	fb01_bulk_voice_bank_init(&fb01_bulk_voice_bank);
+	if(fb01_bulk_voice_bank_from_buffer(&fb01_bulk_voice_bank, data, data_len) == 0)
+		return fm_voice_bank_append_fb01_bulk(bank, &fb01_bulk_voice_bank);
 
 	return -1;
 }
