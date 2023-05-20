@@ -197,7 +197,7 @@ static uint8_t safechar(uint8_t c) {
 	return (c > 48 && c < 127) || c == 0x20 ? c : '.';
 }
 
-float lfo_speed_to_hz(int lfo_speed, int clock) {
+static float lfo_speed_to_hz(int lfo_speed, int clock) {
 	return clock * (16 + (lfo_speed % 16)) / pow(2, 36 - floor(lfo_speed / 16.0));
 }
 
@@ -267,6 +267,10 @@ void fb01_bulk_voice_bank_dump(struct fb01_bulk_voice_bank *bank) {
 	}
 }
 #endif
+
+void fb01_bulk_voice_bank_init(struct fb01_bulk_voice_bank *bank) {
+	memset(bank, 0, sizeof(*bank));
+}
 
 int fb01_bulk_voice_bank_from_buffer(struct fb01_bulk_voice_bank *bank, uint8_t *buf, size_t filesize) {
 	struct fb01_midi_receiver rx;

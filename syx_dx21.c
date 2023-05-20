@@ -240,7 +240,7 @@ static uint8_t safechar(uint8_t c) {
 	return (c > 48 && c < 127) || c == 0x20 ? c : '.';
 }
 
-float lfo_speed_to_hz(int lfo_speed, int clock) {
+static float lfo_speed_to_hz(int lfo_speed, int clock) {
 	return clock * (16 + (lfo_speed % 16)) / pow(2, 36 - floor(lfo_speed / 16.0));
 }
 
@@ -256,7 +256,7 @@ void dx21_vced_voice_dump(struct dx21_vced_voice *voice, int voicenum) {
 	);
 
 	printf("  Algorithm: %d\n", voice->algorithm+1);
-	printf("  LFO speed=%d delay=%d pmd=%d amd=%d sync=%d wave=%s (%d)\n", voice->lfo_speed, voice->lfo_delay, voice->lfo_pmd, voice->lfo_amd, voice->lfo_sync, dx21_lfo_waveform_name(voice->lfo_wave), voice->lfo_wave);
+	printf("  LFO speed=%d (%.02fHz) delay=%d pmd=%d amd=%d sync=%d wave=%s (%d)\n", voice->lfo_speed, lfo_speed_to_hz(voice->lfo_speed, 4000000), voice->lfo_delay, voice->lfo_pmd, voice->lfo_amd, voice->lfo_sync, dx21_lfo_waveform_name(voice->lfo_wave), voice->lfo_wave);
 	printf("  PM sensitivity: %d  AM sensitivity: %d\n", voice->pm_sens, voice->am_sens);
 	const char *notes = "CCDDEFFGGAAB";
 	printf("  Chorus: %d  Reverb: %d\n", voice->chorus, voice->reverb_rate);
@@ -328,6 +328,10 @@ void dx21_vced_voice_bank_dump(struct dx21_vced_voice_bank *bank) {
 	}
 }
 #endif
+
+void dx21_vced_voice_bank_init(struct dx21_vced_voice_bank *bank) {
+	memset(bank, 0, sizeof(*bank));
+}
 
 int dx21_vced_voice_bank_from_buffer(struct dx21_vced_voice_bank *bank, uint8_t *buf, size_t filesize) {
 	struct dx21_midi_receiver rx;
