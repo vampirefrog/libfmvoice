@@ -18,6 +18,7 @@ struct opl_voice {
 	uint8_t dam_dvb_ryt_bd_sd_tom_tc_hh; // ??
 	struct opl_voice_operator operators[4];
 };
+void opl_voice_init(struct opl_voice *);
 void opl_voice_dump(struct opl_voice *);
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv);
 int opl_voice_load_opn_voice(struct opl_voice *oplv, struct opn_voice *opnv);
@@ -35,9 +36,10 @@ struct opm_voice {
 	uint8_t rl_fb_con, pms_ams, slot;
 	struct opm_voice_operator operators[4];
 };
+void opm_voice_init(struct opm_voice *);
 void opm_voice_dump(struct opm_voice *);
-int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opn_voice *oplv);
-int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opl_voice *opnv);
+int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opl_voice *oplv);
+int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opn_voice *opnv);
 
 struct opn_voice_operator {
 	uint8_t dt_mul, tl, ks_ar, am_dr, sr, sl_rr, ssg_eg;
@@ -48,6 +50,7 @@ struct opn_voice {
 	uint8_t lfo, slot, fb_con, lr_ams_pms;
 	struct opn_voice_operator operators[4];
 };
+void opn_voice_init(struct opn_voice *);
 void opn_voice_dump(struct opn_voice *);
 int opn_voice_load_opl_voice(struct opn_voice *opnv, struct opl_voice *oplv);
 int opn_voice_load_opm_voice(struct opn_voice *opnv, struct opm_voice *opmv);

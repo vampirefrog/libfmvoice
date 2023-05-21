@@ -4,6 +4,10 @@
 #include "y12_file.h"
 #include "tools.h"
 
+void y12_file_init(struct y12_file *f) {
+	memset(f, 0, sizeof(*f));
+}
+
 int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 	if(data_len != 0x80) return -1;
 

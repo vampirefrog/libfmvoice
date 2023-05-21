@@ -15,6 +15,18 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+void opl_voice_init(struct opl_voice *v) {
+	memset(v, 0, sizeof(*v));
+}
+
+void opm_voice_init(struct opm_voice *v) {
+	memset(v, 0, sizeof(*v));
+}
+
+void opn_voice_init(struct opn_voice *v) {
+	memset(v, 0, sizeof(*v));
+}
+
 void opl_voice_dump(struct opl_voice *v) {
 	printf("name=%.256s\n", v->name);
 	printf("4OP=%d percussion=%d\n", v->en_4op, v->perc_inst);
@@ -122,11 +134,11 @@ int opl_voice_load_opn_voice(struct opl_voice *oplv, struct opn_voice *opnv) {
 	return 0;
 }
 
-int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opn_voice *oplv) {
+int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opl_voice *oplv) {
 	return 0;
 }
 
-int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opl_voice *opnv) {
+int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opn_voice *opnv) {
 	return 0;
 }
 
@@ -470,7 +482,7 @@ int fm_voice_bank_append_fb01_bulk(struct fm_voice_bank *bank, struct fb01_bulk_
 }
 
 int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_len) {
-#define TRY_FMT(fmt) struct fmt##_file fmt; if(fmt##_file_load(&fmt, data, data_len) == 0) return fm_voice_bank_append_##fmt##_file(bank, &fmt);
+#define TRY_FMT(fmt) struct fmt##_file fmt; fmt##_file_init(&fmt); if(fmt##_file_load(&fmt, data, data_len) == 0) return fm_voice_bank_append_##fmt##_file(bank, &fmt);
 
 	TRY_FMT(op3)
 	TRY_FMT(opm)

@@ -2,6 +2,10 @@
 #include <string.h>
 #include "ins_file.h"
 
+void ins_file_init(struct ins_file *f) {
+	memset(f, 0, sizeof(*f));
+}
+
 int ins_file_load(struct ins_file *f, uint8_t *data, size_t data_len) {
 	if(data_len < 6 || strncmp((char *)data, "MVSI", 4)) return -1;
 

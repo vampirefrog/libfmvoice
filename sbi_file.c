@@ -4,6 +4,10 @@
 #include "sbi_file.h"
 #include "tools.h"
 
+void sbi_file_init(struct sbi_file *f) {
+	memset(f, 0, sizeof(*f));
+}
+
 int sbi_file_load(struct sbi_file *f, uint8_t *data, size_t data_len) {
 	if(data_len < 47 || data_len > 52) return -1;
 

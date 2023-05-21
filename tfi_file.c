@@ -20,6 +20,10 @@ $0C...		ssg
 }
 */
 
+void tfi_file_init(struct tfi_file *f) {
+	memset(f, 0, sizeof(*f));
+}
+
 int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 	if(data_len != 42) return -1;
 
