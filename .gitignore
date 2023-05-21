@@ -51,12 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-*.opm
-*.dmp
-*.ins
-*.tfi
-*.y12
-
 opmdump
 insdump
 dmpdump
