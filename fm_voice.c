@@ -80,11 +80,11 @@ void opm_voice_dump(struct opm_voice *v) {
 	printf("%.256s\n", v->name);
 	printf("lfrq=%d amd=%d pmd=%d w=%d ne=%d nfrq=%d\n", v->lfrq, v->amd, v->pmd, v->w, v->ne_nfrq >> 7, v->ne_nfrq & 0x1f);
 	printf("pan=%c%c fb=%d con=%d slot=0x%02x\n", v->rl_fb_con & 0x80 ? 'R' : '-', v->rl_fb_con & 0x40 ? 'L' : '-', v->rl_fb_con >> 3 & 0x07, v->rl_fb_con & 0x07, v->slot);
-	printf("OP AR D1R D2R RR D1L TL KS MUL DT1 DT2 AMS WS\n");
+	printf("OP AR D1R D2R RR D1L  TL KS MUL DT1 DT2 AMS WS\n");
 	for(int i = 0; i < 4; i++) {
 		struct opm_voice_operator *o = v->operators + i;
 		printf(
-			"%2d %2d %3d %3d %2d %2d %3d %2d %3d %3d %3d %3d %2d\n",
+			"%2d %2d %3d %3d %2d %3d %3d %2d %3d %3d %3d %3d %2d\n",
 			i,
 			o->ks_ar & 0x1f,
 			o->ams_d1r & 0x1f,
@@ -463,9 +463,10 @@ int fm_voice_bank_append_dx21_vced(struct fm_voice_bank *bank, struct dx21_vced_
 		voice->w = v->lfo_wave;
 		voice->pms_ams = (v->pm_sens & 0x07) << 4 | (v->am_sens && 0x03) >> 1;
 		voice->slot = 0x0f;
+		uint8_t opmap[] = { 0, 2, 1, 3 };
 		for(int j = 0; j < 4; j++) {
 			struct opm_voice_operator *op = &voice->operators[j];
-			struct dx21_vced_voice_op *fop = &v->op[j];
+			struct dx21_vced_voice_op *fop = &v->op[opmap[j]];
 			uint8_t mul_dt2 = vced_mul_dt2_table[fop->freq & 0x3f];
 			op->dt1_mul = (fop->detune & 0x07) << 4 | mul_dt2 >> 2;
 			op->tl = fop->ol * 127 / 99;
@@ -480,6 +481,16 @@ int fm_voice_bank_append_dx21_vced(struct fm_voice_bank *bank, struct dx21_vced_
 	return 0;
 }
 
+static const uint8_t dt1_table[] = {
+	/* 0 */ 3,
+	/* 1 */ 4,
+	/* 2 */ 5,
+	/* 3 */ 6,
+	/* 4 */ 3,
+	/* 5 */ 2,
+	/* 6 */ 1,
+	/* 7 */ 0,
+};
 int fm_voice_bank_append_fb01_bulk(struct fm_voice_bank *bank, struct fb01_bulk_voice_bank *f) {
 	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f->num_voices);
 	if(!voice) return -1;
@@ -494,13 +505,14 @@ int fm_voice_bank_append_fb01_bulk(struct fm_voice_bank *bank, struct fb01_bulk_
 		voice->rl_fb_con = 3 << 6 | v->fb_level << 3 | v->algorithm;
 		voice->pms_ams = v->pm_sens << 4 | v->am_sens;
 		voice->slot = 0x0f;
+		uint8_t opmap[] = { 0, 2, 1, 3 };
 		for(int j = 0; j < 4; j++) {
 			struct opm_voice_operator *op = &voice->operators[j];
-			struct fb01_bulk_voice_op *fop = &v->op[j];
-			op->dt1_mul = fop->detune << 4 | fop->freq;
+			struct fb01_bulk_voice_op *fop = &v->op[opmap[j]];
+			op->dt1_mul = dt1_table[fop->detune & 0x07] << 4 | fop->freq;
 			op->tl = fop->tl & 0x7f;
 			op->ks_ar = fop->ks_rate_depth << 6 | fop->ar;
-			op->ams_d1r = fop->d1r & 0x1f;
+			op->ams_d1r = fop->carrier << 7 | (fop->d1r & 0x1f);
 			op->dt2_d2r = (fop->inharmonic_freq & 0x03) << 6 | (fop->d2r & 0x1f);
 			op->d1l_rr = fop->sl << 4 | fop->rr;
 			op->ws = 0;

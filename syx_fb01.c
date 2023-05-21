@@ -221,10 +221,10 @@ void fb01_bulk_voice_dump(struct fb01_bulk_voice *voice, int voicenum) {
 	printf("  mono: %d transpose: %d pmd_controller: %s (%d)\n", voice->mono, voice->transpose, fb01_input_controller_name(voice->pmd_controller), voice->pmd_controller);
 	printf("  pitch_bend_range: %d portamento_speed: %d\n", voice->pitch_bend_range, voice->portamento_speed);
 	printf("     Attack -Decay-         --TL--- Key sns           \n");
-	printf("  OP AR  VS D1R D2R  RR SL  TL S  A T LD RD DT  F C IF\n");
+	printf("  OP AR  VS D1R D2R  RR SL  TL S  A T LD RD  F DT IF C\n");
 	for(int j = 0; j < 4; j++) {
 		printf(
-			"   %d% 3d% 4d% 4d% 4d% 4d% 3d% 4d% 2d% 3d% 2d% 3d% 3d% 3d% 3d% 2d% 3d\n",
+			"  %2d %2d %3d %3d %3d %3d %2d %3d %d %2d %d %2d %2d %2d %2d %2d %d\n",
 			j,
 			voice->op[j].ar,
 			voice->op[j].ar_velocity_sens,
@@ -238,10 +238,10 @@ void fb01_bulk_voice_dump(struct fb01_bulk_voice *voice, int voicenum) {
 			voice->op[j].ks_type,
 			voice->op[j].ks_level_depth,
 			voice->op[j].ks_rate_depth,
-			voice->op[j].detune,
 			voice->op[j].freq,
-			voice->op[j].carrier,
-			voice->op[j].inharmonic_freq
+			voice->op[j].detune,
+			voice->op[j].inharmonic_freq,
+			voice->op[j].carrier
 		);
 	}
 }
