@@ -501,7 +501,7 @@ int fm_voice_bank_append_fb01_bulk(struct fm_voice_bank *bank, struct fb01_bulk_
 			op->tl = fop->tl & 0x7f;
 			op->ks_ar = fop->ks_rate_depth << 6 | fop->ar;
 			op->ams_d1r = fop->d1r & 0x1f;
-			op->dt2_d2r = fop->d2r & 0x1f;
+			op->dt2_d2r = (fop->inharmonic_freq & 0x03) << 6 | fop->d2r & 0x1f;
 			op->d1l_rr = fop->sl << 4 | fop->rr;
 			op->ws = 0;
 		}
