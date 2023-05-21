@@ -422,6 +422,34 @@ int fm_voice_bank_append_y12_file(struct fm_voice_bank *bank, struct y12_file *f
 	return 0;
 }
 
+/* DX21 and some other synths use a lookup table for MUL and DT values, indexed by the "FREQUENCY" parameter (0-63)
+ *
+ * This table can be found in their ROMS:
+ * DX100 1.1 0x0b63
+ * DX21  1.4 0x5184
+ * DX21  1.5 0x51b8
+ * DX21  1.6 0x51b1
+ * TX81Z 1.0 0x34cb
+ * TX81Z 1.1 0x34de
+ * TX81Z 1.2 0x34e9
+ * TX81Z 1.3 0x34e9
+ * TX81Z 1.4 0x34e9
+ * TX81Z 1.5 0x34e9
+ * TX81Z 1.6 0x34ea
+ *
+ * Thanks to andlabs for pointing this out!
+ */
+static const uint8_t vced_mul_dt2_table[] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0C, 0x0A, 0x0B, 0x10, 0x0D, 0x0E,
+	0x14, 0x0F, 0x11, 0x18, 0x12, 0x13, 0x1C, 0x15,
+	0x16, 0x20, 0x19, 0x17, 0x24, 0x1A, 0x1D, 0x28,
+	0x1B, 0x1E, 0x2C, 0x21, 0x30, 0x1F, 0x22, 0x25,
+	0x34, 0x23, 0x38, 0x29, 0x26, 0x3C, 0x2D, 0x27,
+	0x2A, 0x31, 0x2E, 0x2B, 0x35, 0x32, 0x2F, 0x39,
+	0x36, 0x33, 0x3D, 0x3A, 0x37, 0x3E, 0x3B, 0x3F,
+};
+
 int fm_voice_bank_append_dx21_vced(struct fm_voice_bank *bank, struct dx21_vced_voice_bank *f) {
 	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f->num_voices);
 	if(!voice) return -1;
@@ -438,11 +466,12 @@ int fm_voice_bank_append_dx21_vced(struct fm_voice_bank *bank, struct dx21_vced_
 		for(int j = 0; j < 4; j++) {
 			struct opm_voice_operator *op = &voice->operators[j];
 			struct dx21_vced_voice_op *fop = &v->op[j];
-			op->dt1_mul = (fop->detune & 0x07) << 4 | (fop->freq >> 2);
+			uint8_t mul_dt2 = vced_mul_dt2_table[fop->freq & 0x3f];
+			op->dt1_mul = (fop->detune & 0x07) << 4 | mul_dt2 >> 2;
 			op->tl = fop->ol * 127 / 99;
 			op->ks_ar = fop->ksr << 6 | (fop->ar & 0x1f);
 			op->ams_d1r = fop->ame << 7 | (fop->d1r & 0x1f);
-			op->dt2_d2r = fop->d2r & 0x1f;
+			op->dt2_d2r = (mul_dt2 & 0x03) << 6 | (fop->d2r & 0x1f);
 			op->d1l_rr = fop->d1l << 4 | (fop->rr & 0x0f);
 			op->ws = fop->opw;
 		}
