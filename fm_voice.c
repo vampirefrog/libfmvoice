@@ -79,24 +79,24 @@ void opl_voice_dump(struct opl_voice *v) {
 void opm_voice_dump(struct opm_voice *v) {
 	printf("%.256s\n", v->name);
 	printf("lfrq=%d amd=%d pmd=%d w=%d ne=%d nfrq=%d\n", v->lfrq, v->amd, v->pmd, v->w, v->ne_nfrq >> 7, v->ne_nfrq & 0x1f);
-	printf("pan=%c%c fb=%d con=%d\n", v->rl_fb_con & 0x80 ? 'R' : '-', v->rl_fb_con & 0x40 ? 'L' : '-', v->rl_fb_con >> 3 & 0x07, v->rl_fb_con & 0x07);
-	printf("OP DT1 MUL  TL KS AR AMS D1R DT2 D2R D1L RR WS\n");
+	printf("pan=%c%c fb=%d con=%d slot=0x%02x\n", v->rl_fb_con & 0x80 ? 'R' : '-', v->rl_fb_con & 0x40 ? 'L' : '-', v->rl_fb_con >> 3 & 0x07, v->rl_fb_con & 0x07, v->slot);
+	printf("OP AR D1R D2R RR D1L TL KS MUL DT1 DT2 AMS WS\n");
 	for(int i = 0; i < 4; i++) {
 		struct opm_voice_operator *o = v->operators + i;
 		printf(
-			"%d  %3d %3d %3d %2d %2d %3d %3d %3d %3d %3d %2d %2d\n",
+			"%2d %2d %3d %3d %2d %2d %3d %2d %3d %3d %3d %3d %2d\n",
 			i,
-			o->dt1_mul >> 4 & 0x07,
-			o->dt1_mul & 0x0f,
+			o->ks_ar & 0x1f,
+			o->ams_d1r & 0x1f,
+			o->dt2_d2r & 0x1f,
+			o->d1l_rr & 0x0f,
+			o->d1l_rr >> 4,
 			o->tl & 0x7f,
 			o->ks_ar >> 6,
-			o->ks_ar & 0x1f,
-			o->ams_d1r >> 7,
-			o->ams_d1r & 0x1f,
+			o->dt1_mul & 0x0f,
+			o->dt1_mul >> 4 & 0x07,
 			o->dt2_d2r >> 6,
-			o->dt2_d2r & 0x1f,
-			o->d1l_rr >> 4,
-			o->d1l_rr & 0x0f,
+			o->ams_d1r >> 7,
 			o->ws & 0x07
 		);
 	}
@@ -501,7 +501,7 @@ int fm_voice_bank_append_fb01_bulk(struct fm_voice_bank *bank, struct fb01_bulk_
 			op->tl = fop->tl & 0x7f;
 			op->ks_ar = fop->ks_rate_depth << 6 | fop->ar;
 			op->ams_d1r = fop->d1r & 0x1f;
-			op->dt2_d2r = (fop->inharmonic_freq & 0x03) << 6 | fop->d2r & 0x1f;
+			op->dt2_d2r = (fop->inharmonic_freq & 0x03) << 6 | (fop->d2r & 0x1f);
 			op->d1l_rr = fop->sl << 4 | fop->rr;
 			op->ws = 0;
 		}
