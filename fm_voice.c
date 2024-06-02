@@ -185,7 +185,6 @@ void fm_voice_bank_clear(struct fm_voice_bank *bank) {
 }
 
 int fm_voice_bank_append_opl_voice(struct fm_voice_bank *bank, struct opl_voice *voice) {
-	bank->num_opl_voices++;
 	struct opl_voice *newvoice = fm_voice_bank_reserve_opl_voices(bank, 1);
 	if(!newvoice) return -1;
 	memcpy(newvoice, voice, sizeof(*voice));
@@ -201,7 +200,6 @@ struct opl_voice *fm_voice_bank_reserve_opl_voices(struct fm_voice_bank *bank, i
 }
 
 int fm_voice_bank_append_opm_voice(struct fm_voice_bank *bank, struct opm_voice *voice) {
-	bank->num_opm_voices++;
 	struct opm_voice *newvoice = fm_voice_bank_reserve_opm_voices(bank, 1);
 	if(!newvoice) return -1;
 	memcpy(newvoice, voice, sizeof(*voice));
@@ -217,7 +215,6 @@ struct opm_voice *fm_voice_bank_reserve_opm_voices(struct fm_voice_bank *bank, i
 }
 
 int fm_voice_bank_append_opn_voice(struct fm_voice_bank *bank, struct opn_voice *voice) {
-	bank->num_opn_voices++;
 	struct opn_voice *newvoice = fm_voice_bank_reserve_opn_voices(bank, 1);
 	if(!newvoice) return -1;
 	memcpy(newvoice, voice, sizeof(*voice));
