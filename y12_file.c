@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include "y12_file.h"
-#include "tools.h"
 
 void y12_file_init(struct y12_file *f) {
 	memset(f, 0, sizeof(*f));
@@ -35,6 +34,11 @@ int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 	f->game_len = strnlen(f->game, 16);
 
 	return 0;
+}
+
+#ifndef __EMSCRIPTEN__
+static uint8_t safechar(uint8_t c) {
+	return (c > 48 && c < 127) || c == 0x20 ? c : '.';
 }
 
 void y12_file_dump(struct y12_file *f) {
@@ -74,3 +78,4 @@ void y12_file_dump(struct y12_file *f) {
 		);
 	}
 }
+#endif
