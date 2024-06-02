@@ -139,6 +139,28 @@ int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opl_voice *oplv) {
 }
 
 int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opn_voice *opnv) {
+	/* per chip registers */
+	opmv->lfrq = opnv->lfo << 4;
+
+	/* per channel registers */
+	opmv->rl_fb_con = opnv->fb_con & 0x3f;
+	opmv->pms_ams = ((opnv->lr_ams_pms & 0x07) << 4) | ((opnv->lr_ams_pms >> 4) & 0x03);
+
+	// /* slot mask */
+	opmv->slot = opnv->slot;
+
+	/* operators */
+	for(int j = 0; j < 4; j++) {
+		struct opn_voice_operator *nop = &opnv->operators[j];
+		struct opm_voice_operator *mop = &opmv->operators[j];
+
+		mop->dt1_mul = nop->dt_mul & 0x7f;
+		mop->tl = nop->tl & 0x7f;
+		mop->ks_ar = nop->ks_ar & 0xdf;
+		mop->ams_d1r = nop->am_dr & 0x9f;
+		mop->dt2_d2r = nop->sr & 0x1f;
+		mop->d1l_rr = nop->sl_rr;
+	}
 	return 0;
 }
 
