@@ -20,6 +20,8 @@ struct opl_voice {
 };
 void opl_voice_init(struct opl_voice *);
 void opl_voice_dump(struct opl_voice *);
+void opl_voice_normalize(struct opl_voice *);
+int opl_voice_compare(struct opl_voice *, struct opl_voice *);
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv);
 int opl_voice_load_opn_voice(struct opl_voice *oplv, struct opn_voice *opnv);
 
@@ -38,6 +40,8 @@ struct opm_voice {
 };
 void opm_voice_init(struct opm_voice *);
 void opm_voice_dump(struct opm_voice *);
+void opm_voice_normalize(struct opm_voice *);
+int opm_voice_compare(struct opm_voice *, struct opm_voice *);
 int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opl_voice *oplv);
 int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opn_voice *opnv);
 
@@ -52,6 +56,8 @@ struct opn_voice {
 };
 void opn_voice_init(struct opn_voice *);
 void opn_voice_dump(struct opn_voice *);
+void opn_voice_normalize(struct opn_voice *);
+int opn_voice_compare(struct opn_voice *, struct opn_voice *);
 int opn_voice_load_opl_voice(struct opn_voice *opnv, struct opl_voice *oplv);
 int opn_voice_load_opm_voice(struct opn_voice *opnv, struct opm_voice *opmv);
 

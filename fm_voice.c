@@ -126,6 +126,84 @@ void opn_voice_dump(struct opn_voice *v) {
 	}
 }
 
+void opl_voice_normalize(struct opl_voice *v) {
+
+}
+
+int opl_voice_compare(struct opl_voice *v1, struct opl_voice *v2) {
+	return -1;
+}
+
+void opm_voice_normalize(struct opm_voice *v) {
+	const uint8_t slot_masks[8] = { 0x08,0x08,0x08,0x08,0x0c,0x0e,0x0e,0x0f };
+
+	/* Fix volume */
+	uint8_t slot_mask = slot_masks[v->rl_fb_con & 0x07];
+
+	uint8_t min_tl = 0x7f;
+	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
+		if(slot_mask & m)
+			if(v->operators[i].tl < min_tl)
+				min_tl = v->operators[i].tl;
+	}
+
+	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
+		if(slot_mask & m)
+			v->operators[i].tl -= min_tl;
+	}
+}
+
+int opm_voice_compare(struct opm_voice *v1, struct opm_voice *v2) {
+	if((v1->rl_fb_con & 0x3f) != (v2->rl_fb_con & 0x3f)) return 1;
+	for(int j = 0, m = 1; j < 4; j++, m <<= 1) {
+		struct opm_voice_operator *o1 = &v1->operators[j];
+		struct opm_voice_operator *o2 = &v2->operators[j];
+		if((o1->dt1_mul & 0x7f) != (o2->dt1_mul & 0x7f)) return 1;
+		if((o1->ks_ar & 0xdf) != (o2->ks_ar & 0xdf)) return 1;
+		if((o1->ams_d1r & 0x9f) != (o2->ams_d1r & 0x9f)) return 1;
+		if((o1->dt2_d2r & 0xdf) != (o2->dt2_d2r & 0xdf)) return 1;
+		if((o1->tl & 0x7f) != (o2->tl & 0x7f)) return 1;
+		if(o1->d1l_rr != o2->d1l_rr) return 1;
+	}
+	return 0;
+}
+
+void opn_voice_normalize(struct opn_voice *v) {
+	const uint8_t slot_masks[8] = { 0x08,0x08,0x08,0x08,0x0c,0x0e,0x0e,0x0f };
+
+	// maximize volume
+	uint8_t slot_mask = slot_masks[v->fb_con & 0x07];
+	uint8_t min_tl = 127;
+
+	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
+		if(slot_mask & m) {
+			if(v->operators[i].tl < min_tl)
+				min_tl = v->operators[i].tl;
+		}
+	}
+
+	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
+		if(slot_mask & m) {
+			v->operators[i].tl -= min_tl;
+		}
+	}
+}
+
+int opn_voice_compare(struct opn_voice *v1, struct opn_voice *v2) {
+	if(v1->fb_con != v2->fb_con) return 1;
+	for(int j = 0, m = 1; j < 4; j++, m <<= 1) {
+		struct opn_voice_operator *o1 = &v1->operators[j];
+		struct opn_voice_operator *o2 = &v2->operators[j];
+		if((o1->dt_mul & 0x7f) != (o2->dt_mul & 0x7f)) return 1;
+		if((o1->ks_ar & 0xdf) != (o2->ks_ar & 0xdf)) return 1;
+		if((o1->am_dr & 0x9f) != (o2->am_dr & 0x9f)) return 1;
+		if((o1->sr & 0x1f) != (o2->sr & 0x1f)) return 1;
+		if((o1->tl & 0x7f) != (o2->tl & 0x7f)) return 1;
+		if((o1->sl_rr) != (o2->sl_rr)) return 1;
+	}
+	return 0;
+}
+
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv) {
 	return 0;
 }
