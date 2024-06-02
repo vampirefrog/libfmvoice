@@ -537,4 +537,96 @@ int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_le
 		return fm_voice_bank_append_fb01_bulk(bank, &fb01_bulk_voice_bank);
 
 	return -1;
+#undef TRY_FMT
+}
+
+int fm_voice_bank_save_bnk(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_dmp(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_syx_dx21(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_syx_fb01(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_ins(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_op3(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_opm(struct fm_voice_bank *bank, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	struct opm_file opm_file;
+	opm_file_init(&opm_file);
+	for(int i = 0; i < bank->num_opm_voices; i++) {
+		struct opm_voice *v = bank->opm_voices + i;
+		struct opm_file_voice fv;
+		memset(&fv, 0, sizeof(fv));
+		fv.number = i;
+		snprintf(fv.name, sizeof(fv.name), "Instrument %d", i);
+		fv.lfo_lfrq = 0;
+		fv.lfo_amd = 0;
+		fv.lfo_pmd = 0;
+		fv.lfo_wf = 0;
+		fv.nfrq = 0;
+		fv.ch_pan = 64;
+		fv.ch_fl = v->rl_fb_con >> 3 & 0x07;
+		fv.ch_con = v->rl_fb_con & 0x07;
+		fv.ch_pms = v->pms_ams >> 4 & 0x07;
+		fv.ch_ams = v->pms_ams & 0x03;
+		fv.ch_slot = v->slot << 3;
+		fv.ch_ne = 0;
+		for(int j = 0; j < 4; j++) {
+			const uint8_t dtmap[] = { 3, 4, 5, 6,  3, 2, 1, 0 };
+			struct opm_file_operator *fop = &fv.operators[j];
+			struct opm_voice_operator *op = &v->operators[j];
+			fop->ar = op->ks_ar & 0x1f;
+			fop->d1r = op->ams_d1r & 0x1f;
+			fop->d2r = op->dt2_d2r & 0x1f;
+			fop->rr = op->d1l_rr & 0x0f;
+			fop->d1l = op->d1l_rr >> 4;
+			fop->tl = op->tl & 0x7f;
+			fop->ks = op->ks_ar >> 6;
+			fop->mul = op->dt1_mul & 0x0f;
+			fop->dt1 = dtmap[op->dt1_mul >> 4 & 0x07];
+			fop->dt2 = op->dt2_d2r >> 6;
+			fop->ame = op->ams_d1r >> 7;
+		}
+		opm_file_push_voice(&opm_file, &fv);
+	}
+	return opm_file_save(&opm_file, write_fn, 128, data_ptr);
+}
+
+int fm_voice_bank_save_sbi(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_y12(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format format, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
+#define TRY_FMT(fmt, fmtlower) case FORMAT_##fmt: return fm_voice_bank_save_##fmtlower(bank, write_fn, data_ptr)
+	switch(format) {
+		TRY_FMT(BNK, bnk);
+		TRY_FMT(DMP, dmp);
+		TRY_FMT(SYX_DX21, syx_dx21);
+		TRY_FMT(SYX_FB01, syx_fb01);
+		TRY_FMT(INS, ins);
+		TRY_FMT(OP3, op3);
+		TRY_FMT(OPM, opm);
+		TRY_FMT(SBI, sbi);
+		TRY_FMT(Y12, y12);
+		default: return -1;
+	}
+#undef TRY_FMT
 }
