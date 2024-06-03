@@ -142,9 +142,12 @@ void opm_voice_normalize(struct opm_voice *v) {
 
 	uint8_t min_tl = 0x7f;
 	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
-		if(slot_mask & m)
+		if(slot_mask & m) {
+			if((v->operators[i].ks_ar & 0x1f) < 1 && v->operators[i].tl > 100)
+				v->operators[i].tl = 127;
 			if(v->operators[i].tl < min_tl)
 				min_tl = v->operators[i].tl;
+		}
 	}
 
 	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
@@ -177,6 +180,8 @@ void opn_voice_normalize(struct opn_voice *v) {
 
 	for(int i = 0, m = 1; i < 4; i++, m <<= 1) {
 		if(slot_mask & m) {
+			if((v->operators[i].ks_ar & 0x1f) < 1 && v->operators[i].tl > 100)
+				v->operators[i].tl = 127;
 			if(v->operators[i].tl < min_tl)
 				min_tl = v->operators[i].tl;
 		}
