@@ -8,7 +8,7 @@ PROGS=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdu
 
 all: libfmvoice.a $(PROGS)
 
-libfmvoice.a: fm_voice.o op3_file.o opm_file.o bnk_file.o ins_file.o sbi_file.o tfi_file.o y12_file.o syx_dx21.o syx_fb01.o dmp_file.o
+libfmvoice.a: fm_voice.o op3_file.o opm_file.o bnk_file.o ins_file.o sbi_file.o tfi_file.o y12_file.o syx_dx21.o syx_fb01.o dmp_file.o md5.o
 	ar cr $@ $^
 
 fmbankdump: fmbankdump.o tools.o libfmvoice.a

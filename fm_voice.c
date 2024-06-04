@@ -12,6 +12,7 @@
 #include "y12_file.h"
 #include "syx_dx21.h"
 #include "syx_fb01.h"
+#include "md5.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -207,6 +208,35 @@ int opn_voice_compare(struct opn_voice *v1, struct opn_voice *v2) {
 		if((o1->sl_rr) != (o2->sl_rr)) return 1;
 	}
 	return 0;
+}
+
+void opm_voice_compute_md5_sum(struct opm_voice *v, uint8_t *digest) {
+	struct md5_ctx ctx;
+	md5_init_ctx(&ctx);
+	uint8_t data[5 + 3 + 4 * 7] = {
+		v->lfrq,
+		v->amd,
+		v->pmd,
+		v->w & 0x03,
+		v->ne_nfrq & 0x9f,
+		v->rl_fb_con & 0x3f, // ignore pan (RL)
+		v->pms_ams & 0x73,
+		v->slot & 0x0f,
+	};
+	uint8_t *b = data + 5 + 3;
+	struct opm_voice_operator *op = v->operators;
+	for(int i = 0; i < 4; i++) {
+		*(b++) = op->dt1_mul & 0x7f;
+		*(b++) = op->tl & 0x7f;
+		*(b++) = op->ks_ar & 0xdf;
+		*(b++) = op->ams_d1r & 0x9f;
+		*(b++) = op->dt2_d2r & 0xdf;
+		*(b++) = op->d1l_rr;
+		*(b++) = op->ws & 0x07;
+		op++;
+	}
+	md5_process_bytes(data, sizeof(data), &ctx);
+	md5_finish_ctx(&ctx, digest);
 }
 
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv) {
