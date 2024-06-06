@@ -251,6 +251,31 @@ void opm_voice_compute_md5_sum(struct opm_voice *v, uint8_t *digest) {
 	md5_finish_ctx(&ctx, digest);
 }
 
+void opn_voice_compute_md5_sum(struct opn_voice *v, uint8_t *digest) {
+	struct md5_ctx ctx;
+	md5_init_ctx(&ctx);
+	uint8_t data[4 + 4 * 7] = {
+		v->lfo & 0x0f,
+		v->slot & 0x0f,
+		v->fb_con & 0x3f,
+		v->lr_ams_pms & 0xf7,
+	};
+	uint8_t *b = data + 5 + 3;
+	struct opn_voice_operator *op = v->operators;
+	for(int i = 0; i < 4; i++) {
+		*(b++) = op->dt_mul & 0x7f;
+		*(b++) = op->tl & 0x7f;
+		*(b++) = op->ks_ar & 0xdf;
+		*(b++) = op->am_dr & 0x9f;
+		*(b++) = op->sr & 0x0f;
+		*(b++) = op->sl_rr;
+		*(b++) = op->ssg_eg & 0x0f;
+		op++;
+	}
+	md5_process_bytes(data, sizeof(data), &ctx);
+	md5_finish_ctx(&ctx, digest);
+}
+
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv) {
 	return 0;
 }
