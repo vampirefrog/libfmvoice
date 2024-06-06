@@ -254,6 +254,7 @@ int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opl_voice *oplv) {
 int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opn_voice *opnv) {
 	/* per chip registers */
 	opmv->lfrq = opnv->lfo << 4;
+	opmv->amd = opmv->pmd = opmv->w = opmv->ne_nfrq = 0;
 
 	/* per channel registers */
 	opmv->rl_fb_con = opnv->fb_con & 0x3f;
