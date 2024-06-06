@@ -210,6 +210,18 @@ int opn_voice_compare(struct opn_voice *v1, struct opn_voice *v2) {
 	return 0;
 }
 
+int opl_voice_is_silent(struct opl_voice *v) {
+	return 0;
+}
+
+int opm_voice_is_silent(struct opm_voice *v) {
+	return v->slot == 0;
+}
+
+int opn_voice_is_silent(struct opn_voice *v) {
+	return v->slot == 0;
+}
+
 void opm_voice_compute_md5_sum(struct opm_voice *v, uint8_t *digest) {
 	struct md5_ctx ctx;
 	md5_init_ctx(&ctx);
