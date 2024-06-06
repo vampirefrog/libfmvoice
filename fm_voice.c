@@ -215,11 +215,25 @@ int opl_voice_is_silent(struct opl_voice *v) {
 }
 
 int opm_voice_is_silent(struct opm_voice *v) {
-	return v->slot == 0;
+	if(v->slot == 0) return 1;
+	if(
+		(v->operators[0].ks_ar & 0x1f) == 0 &&
+		(v->operators[1].ks_ar & 0x1f) == 0 &&
+		(v->operators[2].ks_ar & 0x1f) == 0 &&
+		(v->operators[3].ks_ar & 0x1f) == 0
+	) return 1;
+	return 0;
 }
 
 int opn_voice_is_silent(struct opn_voice *v) {
-	return v->slot == 0;
+	if(v->slot == 0) return 1;
+	if(
+		(v->operators[0].ks_ar & 0x1f) == 0 &&
+		(v->operators[1].ks_ar & 0x1f) == 0 &&
+		(v->operators[2].ks_ar & 0x1f) == 0 &&
+		(v->operators[3].ks_ar & 0x1f) == 0
+	) return 1;
+	return 0;
 }
 
 void opm_voice_compute_md5_sum(struct opm_voice *v, uint8_t *digest) {
