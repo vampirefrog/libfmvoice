@@ -210,28 +210,40 @@ int opn_voice_compare(struct opn_voice *v1, struct opn_voice *v2) {
 	return 0;
 }
 
+int opl_operator_is_silent(struct opl_voice_operator *op) {
+	return (op->ar_dr >> 4) < 1 || op->ksl_tl > 60; // approximation
+}
+
 int opl_voice_is_silent(struct opl_voice *v) {
 	return 0;
+}
+
+int opm_operator_is_silent(struct opm_voice_operator *op) {
+	return (op->ks_ar & 0x1f) < 1 || op->tl > 110; // approximation
 }
 
 int opm_voice_is_silent(struct opm_voice *v) {
 	if(v->slot == 0) return 1;
 	if(
-		(v->operators[0].ks_ar & 0x1f) == 0 &&
-		(v->operators[1].ks_ar & 0x1f) == 0 &&
-		(v->operators[2].ks_ar & 0x1f) == 0 &&
-		(v->operators[3].ks_ar & 0x1f) == 0
+		opm_operator_is_silent(&v->operators[0]) &&
+		opm_operator_is_silent(&v->operators[1]) &&
+		opm_operator_is_silent(&v->operators[2]) &&
+		opm_operator_is_silent(&v->operators[3])
 	) return 1;
 	return 0;
+}
+
+int opn_operator_is_silent(struct opn_voice_operator *op) {
+	return (op->ks_ar & 0x1f) < 1 || op->tl > 110; // approximation
 }
 
 int opn_voice_is_silent(struct opn_voice *v) {
 	if(v->slot == 0) return 1;
 	if(
-		(v->operators[0].ks_ar & 0x1f) == 0 &&
-		(v->operators[1].ks_ar & 0x1f) == 0 &&
-		(v->operators[2].ks_ar & 0x1f) == 0 &&
-		(v->operators[3].ks_ar & 0x1f) == 0
+		opn_operator_is_silent(&v->operators[0]) &&
+		opn_operator_is_silent(&v->operators[1]) &&
+		opn_operator_is_silent(&v->operators[2]) &&
+		opn_operator_is_silent(&v->operators[3])
 	) return 1;
 	return 0;
 }
