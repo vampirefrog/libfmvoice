@@ -28,7 +28,7 @@ void opl_voice_compute_md5_sum(struct opl_voice *, uint8_t *digest);
 int opl_voice_load_opm_voice(struct opl_voice *oplv, struct opm_voice *opmv);
 int opl_voice_load_opn_voice(struct opl_voice *oplv, struct opn_voice *opnv);
 int opl_pitch_to_block_fnum(float pitch, int clock);
-float opl_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock);
+float opl_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock);
 
 /* For OPM we also support OPZ wave sel */
 struct opm_voice_operator {
@@ -74,9 +74,9 @@ void opn_voice_compute_md5_sum(struct opn_voice *, uint8_t *digest);
 int opn_voice_load_opl_voice(struct opn_voice *opnv, struct opl_voice *oplv);
 int opn_voice_load_opm_voice(struct opn_voice *opnv, struct opm_voice *opmv);
 int opn_pitch_to_block_fnum(float pitch, int clock); // YM2203 (OPN)
-float opn_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock);
+float opn_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock);
 int opnx_pitch_to_block_fnum(float pitch, int clock); // OPNA, OPNB, OPN2
-float opnx_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock);
+float opnx_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock);
 
 struct fm_voice_bank {
 	struct opl_voice *opl_voices;

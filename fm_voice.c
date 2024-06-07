@@ -379,8 +379,10 @@ int opl_pitch_to_block_fnum(float pitch, int clock) {
 	return octave << 11 | (fnum & 0x7ff);
 }
 
-float opl_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock) {
-
+float opl_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock) {
+	int block = block_fnum2 >> 3;
+	int fnum = (block_fnum2 & 0x07) << 8 | fnum1;
+	return (float)fnum * (float)clock * powf(2.0, block - 19.0) / 144.0;
 }
 
 int opm_pitch_to_kc_kf(float pitch, int clock) {
@@ -408,18 +410,22 @@ int opn_pitch_to_block_fnum(float pitch, int clock) {
 	return octave << 11 | (fnum & 0x7ff);
 }
 
-float opn_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock) {
-
+float opn_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock) {
+	int block = block_fnum2 >> 3;
+	int fnum = (block_fnum2 & 0x07) << 8 | fnum1;
+	return (float)fnum * (float)clock * powf(2.0, block - 20.0) / 144.0;
 }
 
 int opnx_pitch_to_block_fnum(float pitch, int clock) {
-	int octave = (69 + 12 * log2(pitch / 440.0)) / 12 ;
+	int octave = (69 + 12 * log2(pitch / 440.0)) / 12;
 	int fnum = (144 * pitch * (1 << 20) / clock) / (1 << (octave - 1));
 	return octave << 11 | (fnum & 0x7ff);
 }
 
-float opnx_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock) {
-
+float opnx_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock) {
+	int block = block_fnum2 >> 3;
+	int fnum = (block_fnum2 & 0x07) << 8 | fnum1;
+	return (float)fnum * (float)clock * powf(2.0, block - 21.0) / 144.0;
 }
 
 void fm_voice_bank_init(struct fm_voice_bank *bank) {
