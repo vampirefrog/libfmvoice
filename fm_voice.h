@@ -50,6 +50,7 @@ int opm_voice_is_silent(struct opm_voice *);
 void opm_voice_compute_md5_sum(struct opm_voice *, uint8_t *digest);
 int opm_voice_load_opl_voice(struct opm_voice *opmv, struct opl_voice *oplv);
 int opm_voice_load_opn_voice(struct opm_voice *opmv, struct opn_voice *opnv);
+int opm_pitch_to_kc_kf(float pitch, int clock);
 
 struct opn_voice_operator {
 	uint8_t dt_mul, tl, ks_ar, am_dr, sr, sl_rr, ssg_eg;

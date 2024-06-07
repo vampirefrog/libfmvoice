@@ -372,6 +372,15 @@ int opn_voice_load_opm_voice(struct opn_voice *opnv, struct opm_voice *opmv) {
 	return 0;
 }
 
+int opm_pitch_to_kc_kf(float pitch, int clock) {
+	const uint8_t opm_notes[12] = { 0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14 };
+	float f = 3584 + 64 * 12 * log2(pitch * 3579545.0 / clock / 440.0);
+	int octave = (int)f / 64 / 12;
+	int kc = octave << 4 | opm_notes[((int)f / 64) % 12];
+	int kf = (int)f % 64 << 2;
+	return kc << 8 | kf;
+}
+
 void fm_voice_bank_init(struct fm_voice_bank *bank) {
 	memset(bank, 0, sizeof(*bank));
 }
