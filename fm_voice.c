@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "fm_voice.h"
 #include "bnk_file.h"
@@ -381,6 +382,14 @@ int opm_pitch_to_kc_kf(float pitch, int clock) {
 	int kc = octave << 4 | opm_notes[((int)f / 64) % 12];
 	int kf = (int)f % 64 << 2;
 	return kc << 8 | kf;
+}
+
+float opm_kc_kf_to_pitch(uint8_t kc, uint8_t kf, int clock) {
+	const uint8_t notes[16] = { 0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 8, 9, 10, 11, 11, };
+	int octave = kc >> 4;
+	int note = notes[kc & 0x0f];
+	int k = (octave * 12 + note) << 6 | (kf >> 2);
+	return powf(2.0, (k - 3584) / 768.0) * (float)clock * 440.0 / 3579545.0;
 }
 
 void fm_voice_bank_init(struct fm_voice_bank *bank) {
