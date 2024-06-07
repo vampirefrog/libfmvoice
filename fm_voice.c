@@ -373,6 +373,16 @@ int opn_voice_load_opm_voice(struct opn_voice *opnv, struct opm_voice *opmv) {
 	return 0;
 }
 
+int opl_pitch_to_block_fnum(float pitch, int clock) {
+	uint8_t octave = (69 + 12 * log2(pitch / 440.0)) / 12 - 1;
+	uint16_t fnum = (144 * pitch * (1 << 18) / clock) / (1 << (octave - 1));
+	return octave << 11 | (fnum & 0x7ff);
+}
+
+float opl_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock) {
+
+}
+
 int opm_pitch_to_kc_kf(float pitch, int clock) {
 	const uint8_t opm_notes[12] = { 0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14 };
 	float f = 3584 + 64 * 12 * log2(pitch * 3579545.0 / clock / 440.0);
@@ -390,6 +400,26 @@ float opm_kc_kf_to_pitch(uint8_t kc, uint8_t kf, int clock) {
 	int note = notes[kc & 0x0f];
 	int k = (octave * 12 + note) << 6 | (kf >> 2);
 	return powf(2.0, (k - 3584) / 768.0) * (float)clock * 440.0 / 3579545.0;
+}
+
+int opn_pitch_to_block_fnum(float pitch, int clock) {
+	int octave = (69 + 12 * log2(pitch / 440.0)) / 12 - 1;
+	int fnum = (144 * pitch * (1 << 19) / clock) / (1 << (octave - 1));
+	return octave << 11 | (fnum & 0x7ff);
+}
+
+float opn_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock) {
+
+}
+
+int opnx_pitch_to_block_fnum(float pitch, int clock) {
+	int octave = (69 + 12 * log2(pitch / 440.0)) / 12 ;
+	int fnum = (144 * pitch * (1 << 20) / clock) / (1 << (octave - 1));
+	return octave << 11 | (fnum & 0x7ff);
+}
+
+float opnx_block_fnum_to_pitch(uint8_t block, uint8_t fnum, int clock) {
+
 }
 
 void fm_voice_bank_init(struct fm_voice_bank *bank) {
