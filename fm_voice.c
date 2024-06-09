@@ -792,31 +792,43 @@ int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_le
 #undef TRY_FMT
 }
 
-int fm_voice_bank_save_bnk(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_CMF(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_dmp(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_BNK(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_syx_dx21(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_IBK(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_syx_fb01(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_TFI(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_ins(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_DMP(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_op3(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_SYX_DX21(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_opm(struct fm_voice_bank *bank, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_SYX_FB01(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_INS(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_OP3(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+int fm_voice_bank_save_OPM(struct fm_voice_bank *bank, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	struct opm_file opm_file;
 	opm_file_init(&opm_file);
 	for(int i = 0; i < bank->num_opm_voices; i++) {
@@ -858,27 +870,35 @@ int fm_voice_bank_save_opm(struct fm_voice_bank *bank, size_t (*write_fn)(void *
 	return opm_file_save(&opm_file, write_fn, 128, data_ptr);
 }
 
-int fm_voice_bank_save_sbi(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_SBI(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_y12(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_Y12(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
 int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format format, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
-#define TRY_FMT(fmt, fmtlower) case FORMAT_##fmt: return fm_voice_bank_save_##fmtlower(bank, write_fn, data_ptr)
 	switch(format) {
-		TRY_FMT(BNK, bnk);
-		TRY_FMT(DMP, dmp);
-		TRY_FMT(SYX_DX21, syx_dx21);
-		TRY_FMT(SYX_FB01, syx_fb01);
-		TRY_FMT(INS, ins);
-		TRY_FMT(OP3, op3);
-		TRY_FMT(OPM, opm);
-		TRY_FMT(SBI, sbi);
-		TRY_FMT(Y12, y12);
+#define FM_FORMAT(id, file_ext, chip_type, name) case FORMAT_##id: return fm_voice_bank_save_##id(bank, write_fn, data_ptr);
+		FM_ALL_FORMATS
+#undef FM_FORMAT
 		default: return -1;
 	}
-#undef TRY_FMT
+}
+
+const char *fm_get_voice_file_format_name(enum fm_voice_file_format fmt) {
+	const char *format_names[] = {
+#define FM_FORMAT(id, file_ext, chip_type, name) name,
+		FM_ALL_FORMATS
+#undef FM_FORMAT
+	};
+	if(fmt >= sizeof(format_names) / sizeof(format_names[0])) return "Unknown";
+	return format_names[fmt];
+}
+
+enum fm_voice_file_format fm_get_voice_file_format_from_name(char *name) {
+#define FM_FORMAT(id, file_ext, chip_type, name) if(!strcmp(name, #id)) return FORMAT_##id;
+	FM_ALL_FORMATS
+#undef FM_FORMAT
 }
