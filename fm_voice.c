@@ -897,6 +897,16 @@ const char *fm_get_voice_file_format_name(enum fm_voice_file_format fmt) {
 	return format_names[fmt];
 }
 
+const char *fm_get_voice_file_format_extension(enum fm_voice_file_format fmt) {
+	const char *format_names[] = {
+#define FM_FORMAT(id, file_ext, chip_type, name) file_ext,
+		FM_ALL_FORMATS
+#undef FM_FORMAT
+	};
+	if(fmt >= sizeof(format_names) / sizeof(format_names[0])) return "txt";
+	return format_names[fmt];
+}
+
 enum fm_voice_file_format fm_get_voice_file_format_from_name(char *name) {
 #define FM_FORMAT(id, file_ext, chip_type, name) if(!strcmp(name, #id)) return FORMAT_##id;
 	FM_ALL_FORMATS

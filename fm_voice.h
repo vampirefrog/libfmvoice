@@ -93,17 +93,17 @@ struct fm_voice_bank {
 // when we need to go through the list.
 // See enum fm_voice_file_format below for an example.
 #define FM_ALL_FORMATS \
-	FM_FORMAT(BNK, "BNK", OPL, "AdLib Instrument Bank Format") \
-	FM_FORMAT(CMF, "CMF", OPL, "Creative Music Format") \
-	FM_FORMAT(IBK, "IBK", OPL, "Instrument Bank") \
-	FM_FORMAT(INS, "INS", OPL, "AdLib Instrument Format") \
-	FM_FORMAT(SBI, "SBI", OPL, "Sound Blaster Instrument") \
-	FM_FORMAT(Y12, "Y12", OPN, "Y12") \
-	FM_FORMAT(TFI, "TFI", OPN, "TFM Music Maker Instrument") \
-	FM_FORMAT(DMP, "DMP", OPN, "DefleMask Preset Format") \
-	FM_FORMAT(OPM, "OPM", OPM, "MiOPMdrv Sound Bank Parameter") \
-	FM_FORMAT(SYX_FB01, "SYX", OPM, "FB01 SysEx dump") \
-	FM_FORMAT(SYX_DX21, "SYX", OPM, "DX21 SysEx dump")
+	FM_FORMAT(BNK, "bnk", OPL, "AdLib Instrument Bank Format") \
+	FM_FORMAT(CMF, "cmf", OPL, "Creative Music Format") \
+	FM_FORMAT(IBK, "ibk", OPL, "Instrument Bank") \
+	FM_FORMAT(INS, "ins", OPL, "AdLib Instrument Format") \
+	FM_FORMAT(SBI, "sbi", OPL, "Sound Blaster Instrument") \
+	FM_FORMAT(Y12, "y12", OPN, "Y12") \
+	FM_FORMAT(TFI, "tfi", OPN, "TFM Music Maker Instrument") \
+	FM_FORMAT(DMP, "dmp", OPN, "DefleMask Preset Format") \
+	FM_FORMAT(OPM, "opm", OPM, "MiOPMdrv Sound Bank Parameter") \
+	FM_FORMAT(SYX_FB01, "syx", OPM, "FB01 SysEx dump") \
+	FM_FORMAT(SYX_DX21, "syx", OPM, "DX21 SysEx dump")
 
 enum fm_voice_file_format {
 	FORMAT_AUTO = 0,
@@ -112,6 +112,7 @@ enum fm_voice_file_format {
 #undef FM_FORMAT
 };
 const char *fm_get_voice_file_format_name(enum fm_voice_file_format fmt);
+const char *fm_get_voice_file_format_extension(enum fm_voice_file_format fmt);
 enum fm_voice_file_format fm_get_voice_file_format_from_name(char *name);
 
 void fm_voice_bank_init(struct fm_voice_bank *bank);
