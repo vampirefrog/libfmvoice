@@ -903,6 +903,7 @@ int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format for
 
 const char *fm_get_voice_file_format_name(enum fm_voice_file_format fmt) {
 	const char *format_names[] = {
+		0,
 #define FM_FORMAT(id, file_ext, chip_type, name) name,
 		FM_ALL_FORMATS
 #undef FM_FORMAT
@@ -913,16 +914,18 @@ const char *fm_get_voice_file_format_name(enum fm_voice_file_format fmt) {
 
 const char *fm_get_voice_file_format_extension(enum fm_voice_file_format fmt) {
 	const char *format_names[] = {
+		0,
 #define FM_FORMAT(id, file_ext, chip_type, name) file_ext,
 		FM_ALL_FORMATS
 #undef FM_FORMAT
 	};
-	if(fmt >= sizeof(format_names) / sizeof(format_names[0])) return "txt";
+	if(fmt >= sizeof(format_names) / sizeof(format_names[0])) return 0;
 	return format_names[fmt];
 }
 
-enum fm_voice_file_format fm_get_voice_file_format_from_name(char *name) {
-#define FM_FORMAT(id, file_ext, chip_type, name) if(!strcmp(name, #id)) return FORMAT_##id;
+enum fm_voice_file_format fm_get_voice_file_format_from_name(char *from_name) {
+#define FM_FORMAT(id, file_ext, chip_type, name) if(!strcasecmp(file_ext, from_name)) return FORMAT_##id;
 	FM_ALL_FORMATS
 #undef FM_FORMAT
+	return FORMAT_AUTO;
 }
