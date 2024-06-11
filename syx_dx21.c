@@ -63,33 +63,35 @@ int dx21_midi_receive_vmem_voice(struct dx21_midi_receiver *rx, uint8_t byte) {
 			case 0: if((byte & 0xc0) != 0) return DX21_BAD_SHFT_FIX_FIXRG; op->shft = byte >> 4 & 0x03; op->fix = byte >> 3 & 0x01; op->fix_range = byte & 0x07; break;
 			case 1: if((byte & 0x80) != 0) return DX21_BAD_OPW_FINE; op->opw = byte >> 4 & 0x07; op->fin_ratio = byte & 0x0f; break;
 		}
-	} else switch(rx->voicepos) {
-		case 40: rx->voice.lfo_sync = byte >> 6; rx->voice.feedback = byte >> 3 & 0x07; rx->voice.algorithm = byte & 0x07; break;
-		case 41: if(byte > 99) return DX21_BAD_LFO_SPEED; rx->voice.lfo_speed = byte; break;
-		case 42: if(byte > 99) return DX21_BAD_LFO_DELAY; rx->voice.lfo_delay = byte; break;
-		case 43: if(byte > 99) return DX21_BAD_LFO_PMD; rx->voice.lfo_pmd = byte; break;
-		case 44: if(byte > 99) return DX21_BAD_LFO_AMD; rx->voice.lfo_amd = byte; break;
-		case 45: rx->voice.pm_sens = byte >> 4; rx->voice.am_sens = byte >> 2 & 0x03; rx->voice.lfo_wave = byte & 0x03; break;
-		case 46: if(byte > 48) return DX21_BAD_MIDDLE_C; rx->voice.middle_c = byte; break;
-		case 47: if(byte > 12) return DX21_BAD_PITCH_BEND_RANGE; rx->voice.pitch_bend_range = byte; break;
-		case 48: if(byte > 0x1f) return DX21_BAD_CH_MO_SU_PO_PM; rx->voice.chorus = byte >> 4 & 0x01; rx->voice.mono_mode = byte >> 3 & 0x01; rx->voice.fc_sustain = byte >> 2 & 0x01; rx->voice.fc_porta = byte >> 1 & 0x01; rx->voice.fingered_porta = byte & 0x01; break;
-		case 49: if(byte > 99) return DX21_BAD_PORTA_TIME; rx->voice.porta_time = byte; break;
-		case 50: if(byte > 99) return DX21_BAD_FC_VOLUME; rx->voice.fc_volume = byte; break;
-		case 51: if(byte > 99) return DX21_BAD_MW_PITCH; rx->voice.mw_pitch = byte; break;
-		case 52: if(byte > 99) return DX21_BAD_MW_AMPLITUDE; rx->voice.mw_amplitude = byte; break;
-		case 53: if(byte > 99) return DX21_BAD_BC_PITCH; rx->voice.bc_pitch = byte; break;
-		case 54: if(byte > 99) return DX21_BAD_BC_AMPLITUDE; rx->voice.bc_amplitude = byte; break;
-		case 55: if(byte > 99) return DX21_BAD_BC_PITCH_BIAS; rx->voice.bc_pitch_bias = byte; break;
-		case 56: if(byte > 99) return DX21_BAD_BC_EG_BIAS; rx->voice.bc_eg_bias = byte; break;
-		case 67: if(byte > 99) return DX21_BAD_PEG_RATE_1; rx->voice.peg_rate_1 = byte; break;
-		case 68: if(byte > 99) return DX21_BAD_PEG_RATE_2; rx->voice.peg_rate_2 = byte; break;
-		case 69: if(byte > 99) return DX21_BAD_PEG_RATE_3; rx->voice.peg_rate_3 = byte; break;
-		case 70: if(byte > 99) return DX21_BAD_LEVEL_1; rx->voice.level_1 = byte; break;
-		case 71: if(byte > 99) return DX21_BAD_LEVEL_2; rx->voice.level_2 = byte; break;
-		case 72: if(byte > 99) return DX21_BAD_LEVEL_3; rx->voice.level_3 = byte; break;
-		case 81: if(byte > 7) return DX21_BAD_REVERB_RATE; rx->voice.reverb_rate = byte; break;
-		case 82: if(byte > 99) return DX21_BAD_FC_PITCH; rx->voice.fc_pitch = byte; break;
-		case 83: if(byte > 99) return DX21_BAD_FC_AMPLITUDE; rx->voice.fc_amplitude = byte; break;
+	} else {
+		switch(rx->voicepos) {
+			case 40: rx->voice.lfo_sync = byte >> 6; rx->voice.feedback = byte >> 3 & 0x07; rx->voice.algorithm = byte & 0x07; break;
+			case 41: if(byte > 99) return DX21_BAD_LFO_SPEED; rx->voice.lfo_speed = byte; break;
+			case 42: if(byte > 99) return DX21_BAD_LFO_DELAY; rx->voice.lfo_delay = byte; break;
+			case 43: if(byte > 99) return DX21_BAD_LFO_PMD; rx->voice.lfo_pmd = byte; break;
+			case 44: if(byte > 99) return DX21_BAD_LFO_AMD; rx->voice.lfo_amd = byte; break;
+			case 45: rx->voice.pm_sens = byte >> 4; rx->voice.am_sens = byte >> 2 & 0x03; rx->voice.lfo_wave = byte & 0x03; break;
+			case 46: if(byte > 48) return DX21_BAD_MIDDLE_C; rx->voice.middle_c = byte; break;
+			case 47: if(byte > 12) return DX21_BAD_PITCH_BEND_RANGE; rx->voice.pitch_bend_range = byte; break;
+			case 48: if(byte > 0x1f) return DX21_BAD_CH_MO_SU_PO_PM; rx->voice.chorus = byte >> 4 & 0x01; rx->voice.mono_mode = byte >> 3 & 0x01; rx->voice.fc_sustain = byte >> 2 & 0x01; rx->voice.fc_porta = byte >> 1 & 0x01; rx->voice.fingered_porta = byte & 0x01; break;
+			case 49: if(byte > 99) return DX21_BAD_PORTA_TIME; rx->voice.porta_time = byte; break;
+			case 50: if(byte > 99) return DX21_BAD_FC_VOLUME; rx->voice.fc_volume = byte; break;
+			case 51: if(byte > 99) return DX21_BAD_MW_PITCH; rx->voice.mw_pitch = byte; break;
+			case 52: if(byte > 99) return DX21_BAD_MW_AMPLITUDE; rx->voice.mw_amplitude = byte; break;
+			case 53: if(byte > 99) return DX21_BAD_BC_PITCH; rx->voice.bc_pitch = byte; break;
+			case 54: if(byte > 99) return DX21_BAD_BC_AMPLITUDE; rx->voice.bc_amplitude = byte; break;
+			case 55: if(byte > 99) return DX21_BAD_BC_PITCH_BIAS; rx->voice.bc_pitch_bias = byte; break;
+			case 56: if(byte > 99) return DX21_BAD_BC_EG_BIAS; rx->voice.bc_eg_bias = byte; break;
+			case 67: if(byte > 99) return DX21_BAD_PEG_RATE_1; rx->voice.peg_rate_1 = byte; break;
+			case 68: if(byte > 99) return DX21_BAD_PEG_RATE_2; rx->voice.peg_rate_2 = byte; break;
+			case 69: if(byte > 99) return DX21_BAD_PEG_RATE_3; rx->voice.peg_rate_3 = byte; break;
+			case 70: if(byte > 99) return DX21_BAD_LEVEL_1; rx->voice.level_1 = byte; break;
+			case 71: if(byte > 99) return DX21_BAD_LEVEL_2; rx->voice.level_2 = byte; break;
+			case 72: if(byte > 99) return DX21_BAD_LEVEL_3; rx->voice.level_3 = byte; break;
+			case 81: if(byte > 7) return DX21_BAD_REVERB_RATE; rx->voice.reverb_rate = byte; break;
+			case 82: if(byte > 99) return DX21_BAD_FC_PITCH; rx->voice.fc_pitch = byte; break;
+			case 83: if(byte > 99) return DX21_BAD_FC_AMPLITUDE; rx->voice.fc_amplitude = byte; break;
+		}
 	}
 
 	rx->voicepos++;
@@ -124,38 +126,40 @@ int dx21_midi_receive_vced_voice(struct dx21_midi_receiver *rx, uint8_t byte) {
 		}
 	} else if(rx->voicepos >= 77 && rx->voicepos <= 86) {
 		rx->voice.name[rx->voicepos-77] = byte;
-	} else switch(rx->voicepos) {
-		case 52: if(byte > 7) return DX21_BAD_VCED_ALGORITHM; rx->voice.algorithm = byte; break;
-		case 53: if(byte > 7) return DX21_BAD_FEEDBACK; rx->voice.feedback = byte; break;
-		case 54: if(byte > 99) return DX21_BAD_LFO_SPEED; rx->voice.lfo_speed = byte; break;
-		case 55: if(byte > 99) return DX21_BAD_LFO_DELAY; rx->voice.lfo_delay = byte; break;
-		case 56: if(byte > 99) return DX21_BAD_LFO_PMD; rx->voice.lfo_pmd = byte; break;
-		case 57: if(byte > 99) return DX21_BAD_LFO_AMD; rx->voice.lfo_amd = byte; break;
-		case 58: if(byte > 1) return DX21_BAD_LFO_SYNC; rx->voice.lfo_sync = byte; break;
-		case 59: if(byte > 3) return DX21_BAD_LFO_WAVE; rx->voice.lfo_wave = byte; break;
-		case 60: if(byte > 7) return DX21_BAD_PM_SENS; rx->voice.pm_sens = byte; break;
-		case 61: if(byte > 3) return DX21_BAD_AM_SENS; rx->voice.am_sens = byte; break;
-		case 62: if(byte > 48) return DX21_BAD_MIDDLE_C; rx->voice.middle_c = byte; break;
-		case 63: if(byte > 1) return DX21_BAD_MONO_MODE; rx->voice.mono_mode = byte; break;
-		case 64: if(byte > 12) return DX21_BAD_PITCH_BEND_RANGE; rx->voice.pitch_bend_range = byte; break;
-		case 65: if(byte > 1) return DX21_BAD_FINGeRED_pORTA; rx->voice.fingered_porta = byte; break;
-		case 66: if(byte > 99) return DX21_BAD_PORTA_TIME; rx->voice.porta_time = byte; break;
-		case 67: if(byte > 99) return DX21_BAD_FC_VOLUME; rx->voice.fc_volume = byte; break;
-		case 68: if(byte > 1) return DX21_BAD_FC_SUSTAIN; rx->voice.fc_sustain = byte; break;
-		case 69: if(byte > 1) return DX21_BAD_FC_PORTA; rx->voice.fc_porta = byte; break;
-		case 70: if(byte > 1) return DX21_BAD_CHORUS; rx->voice.chorus = byte; break;
-		case 71: if(byte > 99) return DX21_BAD_MW_PITCH; rx->voice.mw_pitch = byte; break;
-		case 72: if(byte > 99) return DX21_BAD_MW_AMPLITUDE; rx->voice.mw_amplitude = byte; break;
-		case 73: if(byte > 99) return DX21_BAD_BC_PITCH; rx->voice.bc_pitch = byte; break;
-		case 74: if(byte > 99) return DX21_BAD_BC_AMPLITUDE; rx->voice.bc_amplitude = byte; break;
-		case 75: if(byte > 99) return DX21_BAD_BC_PITCH_BIAS; rx->voice.bc_pitch_bias = byte; break;
-		case 76: if(byte > 99) return DX21_BAD_BC_EG_BIAS; rx->voice.bc_eg_bias = byte; break;
-		case 87: if(byte > 99) return DX21_BAD_PEG_RATE_1; rx->voice.peg_rate_1 = byte; break;
-		case 88: if(byte > 99) return DX21_BAD_PEG_RATE_2; rx->voice.peg_rate_2 = byte; break;
-		case 89: if(byte > 99) return DX21_BAD_PEG_RATE_3; rx->voice.peg_rate_3 = byte; break;
-		case 90: if(byte > 99) return DX21_BAD_LEVEL_1; rx->voice.level_1 = byte; break;
-		case 91: if(byte > 99) return DX21_BAD_LEVEL_2; rx->voice.level_2 = byte; break;
-		case 92: if(byte > 99) return DX21_BAD_LEVEL_3; rx->voice.level_3 = byte; break;
+	} else {
+		switch(rx->voicepos) {
+			case 52: if(byte > 7) return DX21_BAD_VCED_ALGORITHM; rx->voice.algorithm = byte; break;
+			case 53: if(byte > 7) return DX21_BAD_FEEDBACK; rx->voice.feedback = byte; break;
+			case 54: if(byte > 99) return DX21_BAD_LFO_SPEED; rx->voice.lfo_speed = byte; break;
+			case 55: if(byte > 99) return DX21_BAD_LFO_DELAY; rx->voice.lfo_delay = byte; break;
+			case 56: if(byte > 99) return DX21_BAD_LFO_PMD; rx->voice.lfo_pmd = byte; break;
+			case 57: if(byte > 99) return DX21_BAD_LFO_AMD; rx->voice.lfo_amd = byte; break;
+			case 58: if(byte > 1) return DX21_BAD_LFO_SYNC; rx->voice.lfo_sync = byte; break;
+			case 59: if(byte > 3) return DX21_BAD_LFO_WAVE; rx->voice.lfo_wave = byte; break;
+			case 60: if(byte > 7) return DX21_BAD_PM_SENS; rx->voice.pm_sens = byte; break;
+			case 61: if(byte > 3) return DX21_BAD_AM_SENS; rx->voice.am_sens = byte; break;
+			case 62: if(byte > 48) return DX21_BAD_MIDDLE_C; rx->voice.middle_c = byte; break;
+			case 63: if(byte > 1) return DX21_BAD_MONO_MODE; rx->voice.mono_mode = byte; break;
+			case 64: if(byte > 12) return DX21_BAD_PITCH_BEND_RANGE; rx->voice.pitch_bend_range = byte; break;
+			case 65: if(byte > 1) return DX21_BAD_FINGeRED_pORTA; rx->voice.fingered_porta = byte; break;
+			case 66: if(byte > 99) return DX21_BAD_PORTA_TIME; rx->voice.porta_time = byte; break;
+			case 67: if(byte > 99) return DX21_BAD_FC_VOLUME; rx->voice.fc_volume = byte; break;
+			case 68: if(byte > 1) return DX21_BAD_FC_SUSTAIN; rx->voice.fc_sustain = byte; break;
+			case 69: if(byte > 1) return DX21_BAD_FC_PORTA; rx->voice.fc_porta = byte; break;
+			case 70: if(byte > 1) return DX21_BAD_CHORUS; rx->voice.chorus = byte; break;
+			case 71: if(byte > 99) return DX21_BAD_MW_PITCH; rx->voice.mw_pitch = byte; break;
+			case 72: if(byte > 99) return DX21_BAD_MW_AMPLITUDE; rx->voice.mw_amplitude = byte; break;
+			case 73: if(byte > 99) return DX21_BAD_BC_PITCH; rx->voice.bc_pitch = byte; break;
+			case 74: if(byte > 99) return DX21_BAD_BC_AMPLITUDE; rx->voice.bc_amplitude = byte; break;
+			case 75: if(byte > 99) return DX21_BAD_BC_PITCH_BIAS; rx->voice.bc_pitch_bias = byte; break;
+			case 76: if(byte > 99) return DX21_BAD_BC_EG_BIAS; rx->voice.bc_eg_bias = byte; break;
+			case 87: if(byte > 99) return DX21_BAD_PEG_RATE_1; rx->voice.peg_rate_1 = byte; break;
+			case 88: if(byte > 99) return DX21_BAD_PEG_RATE_2; rx->voice.peg_rate_2 = byte; break;
+			case 89: if(byte > 99) return DX21_BAD_PEG_RATE_3; rx->voice.peg_rate_3 = byte; break;
+			case 90: if(byte > 99) return DX21_BAD_LEVEL_1; rx->voice.level_1 = byte; break;
+			case 91: if(byte > 99) return DX21_BAD_LEVEL_2; rx->voice.level_2 = byte; break;
+			case 92: if(byte > 99) return DX21_BAD_LEVEL_3; rx->voice.level_3 = byte; break;
+		}
 	}
 
 	rx->voicepos++;

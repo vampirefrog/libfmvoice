@@ -713,7 +713,7 @@ int fm_voice_bank_append_dx21_vced(struct fm_voice_bank *bank, struct dx21_vced_
 		voice->amd = v->lfo_amd * 127 / 99;
 		voice->pmd = v->lfo_pmd * 127 / 99;
 		voice->w = v->lfo_wave;
-		voice->pms_ams = (v->pm_sens & 0x07) << 4 | (v->am_sens && 0x03) >> 1;
+		voice->pms_ams = (v->pm_sens & 0x07) << 4 | (v->am_sens & 0x03) >> 1;
 		voice->slot = 0x0f;
 		for(int j = 0; j < 4; j++) {
 			struct opm_voice_operator *op = &voice->operators[j];

@@ -125,3 +125,10 @@ FILE *f = fopen("out.opm", "w");
 int opm_file_save(&opm, write_fn, f);
 fclose(f);
 ```
+
+Building with emscripten
+------------------------
+
+```sh
+emmake make libfmvoice.a
+```
