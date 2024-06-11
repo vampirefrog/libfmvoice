@@ -821,7 +821,21 @@ int fm_voice_bank_save_SYX_FB01(struct fm_voice_bank *bank, int (*write)(void *,
 }
 
 int fm_voice_bank_save_INS(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
-	return -1;
+	struct ins_file ins;
+	if(bank->num_opn_voices < 1) return -1;
+	ins.name = strdup(bank->opn_voices[0].name);
+	if(!ins.name) return -1;
+	ins.name_len = strlen(bank->opn_voices[0].name);
+	ins.fb_alg = bank->opn_voices[0].fb_con;
+	for(int i = 0; i < 4; i++) {
+		ins.operators[i].mul_dt = bank->opn_voices[0].operators[i].dt_mul;
+		ins.operators[i].tl = bank->opn_voices[0].operators[i].tl;
+		ins.operators[i].rs_ar = bank->opn_voices[0].operators[i].ks_ar;
+		ins.operators[i].dr = bank->opn_voices[0].operators[i].am_dr;
+		ins.operators[i].sr = bank->opn_voices[0].operators[i].sr;
+		ins.operators[i].sl_rr = bank->opn_voices[0].operators[i].sl_rr;
+	}
+	return ins_file_save(&ins, write, data_ptr);
 }
 
 int fm_voice_bank_save_OP3(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
