@@ -103,7 +103,6 @@ int dx21_midi_receive_vmem_voice(struct dx21_midi_receiver *rx, uint8_t byte) {
 }
 
 int dx21_midi_receive_vced_voice(struct dx21_midi_receiver *rx, uint8_t byte) {
-	printf("RECV VOICE 0x%02x voicenum=%d voicepos=%d\n", byte, rx->voicenum, rx->voicepos);
 	if(rx->voicenum >= 32) return DX21_TOO_MANY_VOICES;
 	if(rx->voicepos < 52) {
 		struct dx21_vced_voice_op *op = &rx->voice.op[rx->voicepos / 13];
