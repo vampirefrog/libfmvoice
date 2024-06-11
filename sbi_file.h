@@ -20,7 +20,7 @@ struct sbi_file {
 
 void sbi_file_init(struct sbi_file *f);
 int sbi_file_load(struct sbi_file *sbi, uint8_t *data, size_t data_len);
-int sbi_file_save(struct sbi_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
+int sbi_file_save(struct sbi_file *f, int (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
 void sbi_file_dump(struct sbi_file *f);
 
 #endif /* SBI_FILE_H_ */

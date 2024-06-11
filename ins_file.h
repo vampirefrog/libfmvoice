@@ -45,7 +45,7 @@ struct ins_file {
 
 void ins_file_init(struct ins_file *f);
 int ins_file_load(struct ins_file *f, uint8_t *data, size_t data_len);
-int ins_file_save(struct ins_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
+int ins_file_save(struct ins_file *f, int (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
 void ins_file_dump(struct ins_file *f);
 
 #endif /* INS_FILE_H_ */

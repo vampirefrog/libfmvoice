@@ -298,7 +298,7 @@ int fb01_bulk_voice_bank_from_buffer(struct fb01_bulk_voice_bank *bank, uint8_t 
 #define PUTBYTE(b) { int _b = b; accumulator += (buf[bufpos++] = _b & 0x0f); accumulator += (buf[bufpos++] = _b >> 4); }
 #define PUTCHECKSUM { buf[bufpos++] = -accumulator & 0x7f; accumulator = 0; }
 #define FLUSHBUF { int r = write(buf, bufpos, data_ptr); if(r < bufpos) return FB01_SHORT_WRITE; bufpos = 0; }
-int fb01_bulk_voice_bank_send(struct fb01_bulk_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fb01_bulk_voice_bank_send(struct fb01_bulk_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	uint8_t buf[131];
 	buf[0] = 0xf0;
 	buf[1] = 0x43;

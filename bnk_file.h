@@ -28,7 +28,7 @@ struct bnk_file {
 void bnk_file_init(struct bnk_file *f);
 int bnk_file_load(struct bnk_file *f, uint8_t *data, size_t data_len);
 int bnk_file_test(uint8_t *data, size_t data_len);
-int bnk_file_save(struct bnk_file *f, size_t (*write_fn)(void *buf, size_t len, void *data_ptr), void *data_ptr);
+int bnk_file_save(struct bnk_file *f, int (*write_fn)(void *buf, size_t len, void *data_ptr), void *data_ptr);
 void bnk_file_dump(struct bnk_file *f);
 
 #endif /* BNK_FILE_H_ */

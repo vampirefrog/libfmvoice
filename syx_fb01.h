@@ -144,7 +144,7 @@ int fb01_midi_receive(struct fb01_midi_receiver *rx, uint8_t byte);
 
 void fb01_bulk_voice_bank_init(struct fb01_bulk_voice_bank *bank);
 int fb01_bulk_voice_bank_from_buffer(struct fb01_bulk_voice_bank *bank, uint8_t *buf, size_t filesize);
-int fb01_bulk_voice_bank_send(struct fb01_bulk_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr);
+int fb01_bulk_voice_bank_send(struct fb01_bulk_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr);
 #ifndef __EMSCRIPTEN__
 void fb01_bulk_voice_dump(struct fb01_bulk_voice *voice, int voicenum);
 void fb01_bulk_voice_bank_dump(struct fb01_bulk_voice_bank *bank);

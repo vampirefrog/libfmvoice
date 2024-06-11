@@ -25,7 +25,7 @@ struct tfi_file {
 
 void tfi_file_init(struct tfi_file *f);
 int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len);
-int tfi_file_save(struct tfi_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
+int tfi_file_save(struct tfi_file *f, int (*write_fn)(void *buf, size_t bufsize, void *data_ptr), void *data_ptr);
 void tfi_file_dump(struct tfi_file *f);
 
 #endif /* TFI_FILE_H_ */

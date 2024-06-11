@@ -24,7 +24,7 @@ struct op3_file {
 void op3_file_init(struct op3_file *f);
 int op3_file_load(struct op3_file *f, uint8_t *data, size_t data_len);
 int op3_file_test(uint8_t *data, size_t data_len);
-int op3_file_save(struct op3_file *f, size_t (*write_fn)(void *buf, size_t len, void *data_ptr), void *data_ptr);
+int op3_file_save(struct op3_file *f, int (*write_fn)(void *buf, size_t len, void *data_ptr), void *data_ptr);
 void op3_file_dump(struct op3_file *f);
 
 #endif /* OP3_FILE_H_ */

@@ -361,7 +361,7 @@ int dx21_vced_voice_bank_from_buffer(struct dx21_vced_voice_bank *bank, uint8_t 
 #define PUTDATABYTE(b) { uint8_t _b = b; accumulator += _b; PUTBYTE(_b); }
 #define PUTCHECKSUM { buf[bufpos++] = -accumulator & 0x7f; accumulator = 0; }
 #define FLUSHBUF { size_t r = write(buf, bufpos, data_ptr); if(r < bufpos) return DX21_SHORT_WRITE; bufpos = 0; }
-int dx21_vced_voice_bank_send(struct dx21_vced_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int dx21_vced_voice_bank_send(struct dx21_vced_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	uint8_t accumulator = 0;
 	uint8_t buf[4 + 2 + 4096 + 1 + 1];
 	int bufpos = 0;

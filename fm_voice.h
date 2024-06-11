@@ -125,4 +125,4 @@ int fm_voice_bank_append_opn_voice(struct fm_voice_bank *bank, struct opn_voice 
 struct opn_voice *fm_voice_bank_reserve_opn_voices(struct fm_voice_bank *bank, int num_voices);
 void fm_voice_bank_dump(struct fm_voice_bank *bank);
 int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_len);
-int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format format, size_t (*write)(void *, size_t, void *), void *data_ptr);
+int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format format, int (*write)(void *, size_t, void *), void *data_ptr);

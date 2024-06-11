@@ -792,43 +792,43 @@ int fm_voice_bank_load(struct fm_voice_bank *bank, uint8_t *data, size_t data_le
 #undef TRY_FMT
 }
 
-int fm_voice_bank_save_CMF(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_CMF(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_BNK(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_BNK(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_IBK(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_IBK(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_TFI(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_TFI(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_DMP(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_DMP(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_SYX_DX21(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_SYX_DX21(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_SYX_FB01(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_SYX_FB01(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_INS(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_INS(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_OP3(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_OP3(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_OPM(struct fm_voice_bank *bank, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_OPM(struct fm_voice_bank *bank, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	struct opm_file opm_file;
 	opm_file_init(&opm_file);
 	for(int i = 0; i < bank->num_opm_voices; i++) {
@@ -870,15 +870,15 @@ int fm_voice_bank_save_OPM(struct fm_voice_bank *bank, size_t (*write_fn)(void *
 	return opm_file_save(&opm_file, write_fn, 128, data_ptr);
 }
 
-int fm_voice_bank_save_SBI(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_SBI(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save_Y12(struct fm_voice_bank *bank, size_t (*write)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save_Y12(struct fm_voice_bank *bank, int (*write)(void *, size_t, void *), void *data_ptr) {
 	return -1;
 }
 
-int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format format, size_t (*write_fn)(void *, size_t, void *), void *data_ptr) {
+int fm_voice_bank_save(struct fm_voice_bank *bank, enum fm_voice_file_format format, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	switch(format) {
 #define FM_FORMAT(id, file_ext, chip_type, name) case FORMAT_##id: return fm_voice_bank_save_##id(bank, write_fn, data_ptr);
 		FM_ALL_FORMATS

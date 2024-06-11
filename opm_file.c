@@ -294,7 +294,7 @@ static const char *opm_file_operator_name(int i) {
 	return names[i];
 }
 
-int opm_file_save(struct opm_file *f, size_t (*write_fn)(void *buf, size_t bufsize, void *data_ptr), int pad_to, void *data_ptr) {
+int opm_file_save(struct opm_file *f, int (*write_fn)(void *buf, size_t bufsize, void *data_ptr), int pad_to, void *data_ptr) {
 	uint8_t buf[256];
 
 #define WRITEF(args...) { \
