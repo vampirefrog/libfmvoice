@@ -140,7 +140,7 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 		bnk.names[i].flags = 0;
 		bnk.instruments[i].percussive = 0; // TODO: add a percussive flag to opl_voice?
 		bnk.instruments[i].voice_num = 0; // TODO: what is this?
-		for(int o = 0; i < 2; o++) {
+		for(int o = 0; o < 2; o++) {
 			bnk.instruments[i].operators[o].ksl = opl_voice_operator_get_ksl(bank->opl_voices + j, o);
 			bnk.instruments[i].operators[o].mul = opl_voice_operator_get_mul(bank->opl_voices + j, o);
 			bnk.instruments[i].operators[o].fb = opl_voice_get_fb(bank->opl_voices + j);
