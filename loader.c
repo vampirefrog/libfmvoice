@@ -25,9 +25,8 @@ struct loader *loaders[] = {
 };
 
 struct loader *get_loader_by_name(char *name) {
-	for(int i = 0; i < sizeof(loaders) / sizeof(loaders[0]); i++) {
+	for(int i = 0; i < sizeof(loaders) / sizeof(loaders[0]); i++)
 		if(!strcmp(loaders[i]->name, name)) return loaders[i];
-	}
 	return 0;
 }
 
