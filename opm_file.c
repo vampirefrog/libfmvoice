@@ -338,6 +338,7 @@ int opm_file_save(struct opm_file *f, int (*write_fn)(void *buf, size_t bufsize,
 	return 0;
 }
 
+#ifdef HAVE_STDIO
 void opm_file_dump(struct opm_file *f) {
 	for(int i = 0; i < f->num_voices; i++) {
 		struct opm_file_voice *v = f->voices + i;
@@ -351,3 +352,94 @@ void opm_file_dump(struct opm_file *f) {
 		}
 	}
 }
+#endif
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+
+static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
+	struct opm_file f;
+	int r = opm_file_load(&f, data, data_len);
+	if(r) return r;
+	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f.num_voices);
+	if(!voice) return -1;
+	for(int i = 0; i < f.num_voices; i++) {
+		struct opm_file_voice *v = &f.voices[i];
+		memcpy(voice->name, v->name, 256);
+		voice->lfrq = v->lfo_lfrq;
+		voice->amd = v->lfo_amd & 0x7f;
+		voice->pmd = v->lfo_pmd & 0x7f;
+		voice->w = v->lfo_wf & 0x03;
+		voice->ne_nfrq = v->ch_ne << 7 | (v->nfrq & 0x1f);
+		voice->rl_fb_con = (v->ch_pan & 0xc0) | (v->ch_fl & 0x07) << 3 | (v->ch_con & 0x07);
+		voice->pms_ams = (v->ch_ams & 0x07) << 4 | (v->ch_pms & 0x03);
+		voice->slot = v->ch_slot >> 3;
+		for(int j = 0; j < 4; j++) {
+			struct opm_voice_operator *op = &voice->operators[j];
+			struct opm_file_operator *fop = &v->operators[j];
+			op->dt1_mul = fop->dt1 << 4 | fop->mul;
+			op->tl = fop->tl;
+			op->ks_ar = fop->ks << 6 | fop->ar;
+			op->ams_d1r = fop->ame << 7 | fop->d1r;
+			op->dt2_d2r = fop->dt2 << 6 | fop->d2r;
+			op->d1l_rr = fop->d1l << 4 | fop->rr;
+		}
+		voice++;
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	struct opm_file opm_file;
+	opm_file_init(&opm_file);
+	for(int i = pos->opm; i < bank->num_opm_voices; i++) {
+		struct opm_voice *v = bank->opm_voices + i;
+		struct opm_file_voice fv;
+		memset(&fv, 0, sizeof(fv));
+		fv.number = i;
+		snprintf(fv.name, sizeof(fv.name), "Instrument %d", i);
+		fv.lfo_lfrq = 0;
+		fv.lfo_amd = 0;
+		fv.lfo_pmd = 0;
+		fv.lfo_wf = 0;
+		fv.nfrq = 0;
+		fv.ch_pan = 64;
+		fv.ch_fl = v->rl_fb_con >> 3 & 0x07;
+		fv.ch_con = v->rl_fb_con & 0x07;
+		fv.ch_pms = v->pms_ams >> 4 & 0x07;
+		fv.ch_ams = v->pms_ams & 0x03;
+		fv.ch_slot = v->slot << 3;
+		fv.ch_ne = 0;
+		for(int j = 0; j < 4; j++) {
+			const uint8_t dtmap[] = { 3, 4, 5, 6,  3, 2, 1, 0 };
+			struct opm_file_operator *fop = &fv.operators[j];
+			struct opm_voice_operator *op = &v->operators[j];
+			fop->ar = op->ks_ar & 0x1f;
+			fop->d1r = op->ams_d1r & 0x1f;
+			fop->d2r = op->dt2_d2r & 0x1f;
+			fop->rr = op->d1l_rr & 0x0f;
+			fop->d1l = op->d1l_rr >> 4;
+			fop->tl = op->tl & 0x7f;
+			fop->ks = op->ks_ar >> 6;
+			fop->mul = op->dt1_mul & 0x0f;
+			fop->dt1 = dtmap[op->dt1_mul >> 4 & 0x07];
+			fop->dt2 = op->dt2_d2r >> 6;
+			fop->ame = op->ams_d1r >> 7;
+		}
+		opm_file_push_voice(&opm_file, &fv);
+		pos->opm++;
+	}
+	return opm_file_save(&opm_file, write_fn, 128, data_ptr);
+}
+
+struct loader opm_file_loader = {
+	.load = load,
+	.save = save,
+	.name = "OPM",
+	.description = "MiOPMdrv Sound Bank Parameter",
+	.file_ext = "opm",
+	.max_opl_voices = 128,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+#endif

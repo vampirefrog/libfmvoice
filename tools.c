@@ -153,7 +153,3 @@ void csv_quote(char *str, size_t len) {
 	}
 	putchar('"');
 }
-
-char safechar(char c) {
-	return c >= 0x20 && c < 0x7f ? c : '.';
-}

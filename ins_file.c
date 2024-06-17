@@ -63,6 +63,7 @@ int ins_file_save(struct ins_file *f, int (*write_fn)(void *, size_t, void *), v
 	return 0;
 }
 
+#ifdef HAVE_STDIO
 void ins_file_dump(struct ins_file *f) {
 	fwrite(f->name, 1, f->name_len, stdout);
 	printf("\nname_len=%d version=%d data_offset=%d\n", f->name_len, f->version, f->data_offset);
@@ -95,3 +96,64 @@ void ins_file_dump(struct ins_file *f) {
 		);
 	}
 }
+#endif
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+#include "tools.h"
+
+static int load(void *data, int data_len, struct fm_voice_bank *bank) {
+	struct ins_file f;
+	int r = ins_file_load(&f, data, data_len);
+	if(r) return r;
+	struct opn_voice *voice = fm_voice_bank_reserve_opn_voices(bank, 1);
+	if(!voice) return -1;
+	memcpy(voice->name, f.name, MIN(f.name_len, 256));
+	voice->lfo = 0;
+	voice->slot = 0x0f;
+	voice->fb_con = f.fb_alg;
+	voice->lr_ams_pms = 3 << 6;
+	for(int i = 0; i < 4; i++) {
+		struct opn_voice_operator *op = &voice->operators[i];
+		struct ins_file_operator *fop = &f.operators[i];
+		op->dt_mul = fop->mul_dt;
+		op->tl = fop->tl;
+		op->ks_ar = fop->rs_ar;
+		op->am_dr = fop->dr;
+		op->sr = fop->sr;
+		op->sl_rr = fop->sl_rr;
+		op->ssg_eg = 0;
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	struct ins_file ins;
+	if(bank->num_opn_voices < 1) return -1;
+	ins.name = strdup(bank->opn_voices[pos->opn].name);
+	if(!ins.name) return -1;
+	ins.name_len = strlen(bank->opn_voices[pos->opn].name);
+	ins.fb_alg = bank->opn_voices[pos->opn].fb_con;
+	for(int i = 0; i < 4; i++) {
+		ins.operators[i].mul_dt = bank->opn_voices[pos->opn].operators[i].dt_mul;
+		ins.operators[i].tl = opn_voice_get_operator_tl(bank->opn_voices + pos->opn, i);
+		ins.operators[i].rs_ar = bank->opn_voices[pos->opn].operators[i].ks_ar;
+		ins.operators[i].dr = bank->opn_voices[pos->opn].operators[i].am_dr;
+		ins.operators[i].sr = opn_voice_get_operator_sr(bank->opn_voices + pos->opn, i);
+		ins.operators[i].sl_rr = bank->opn_voices[pos->opn].operators[i].sl_rr;
+	}
+	pos->opn++;
+	return ins_file_save(&ins, write_fn, data_ptr);
+}
+
+struct loader ins_file_loader = {
+	.load = load,
+	.save = save,
+	.name = "INS",
+	.description = "AdLib Instrument Format",
+	.file_ext = "ins",
+	.max_opl_voices = 1,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+#endif

@@ -33,6 +33,7 @@ int sbi_file_load(struct sbi_file *f, uint8_t *data, size_t data_len) {
 	return 0;
 }
 
+#ifdef HAVE_STDIO
 void sbi_file_dump(struct sbi_file *f) {
 	printf("name=%.32s\n", f->name);
 	printf("fb=%d con=%d perc_voice=%d transpose=%d perc_pitch=%d\n", f->fb_con >> 1 & 0x07, f->fb_con & 0x01, f->perc_voice, f->transpose, f->perc_pitch);
@@ -55,3 +56,45 @@ void sbi_file_dump(struct sbi_file *f) {
 		);
 	}
 }
+#endif
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+
+static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
+	struct sbi_file f;
+	int r = sbi_file_load(&f, data, data_len);
+	if(r) return r;
+	struct opl_voice *voice = fm_voice_bank_reserve_opl_voices(bank, 1);
+	if(!voice) return -1;
+	memcpy(voice->name, f.name, 32);
+	voice->en_4op = 0;
+	voice->perc_inst = f.perc_voice;
+	voice->ch_fb_cnt[0] = f.fb_con;
+	voice->ch_fb_cnt[1] = 0;
+	for(int i = 0; i < 2; i++) {
+		struct opl_voice_operator *op = &voice->operators[i];
+		op->am_vib_eg_ksr_mul = f.am_vib_eg_ksr_mul[i];
+		op->ksl_tl = f.ksl_tl[i];
+		op->ar_dr = f.ar_dr[i];
+		op->sl_rr = f.sl_rr[i];
+		op->ws = f.ws[i];
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+struct loader sbi_file_loader = {
+	.load = load,
+	.save = save,
+	.name = "SBI",
+	.description = "Sound Blaster Instrument",
+	.file_ext = "sbi",
+	.max_opl_voices = 1,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+#endif

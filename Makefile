@@ -1,6 +1,6 @@
 AR?=ar
 CC?=gcc
-CFLAGS?=-Wall -O2
+CFLAGS?=-Wall -O2 -DHAVE_STDIO -DENABLE_LOADERS
 LDFLAGS?=-lz -lm
 PROGS:=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdump sbidump
 
@@ -8,7 +8,7 @@ PROGS:=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkd
 
 all: libfmvoice.a $(PROGS)
 
-libfmvoice.a: fm_voice.o op3_file.o opm_file.o bnk_file.o ins_file.o sbi_file.o tfi_file.o y12_file.o syx_dx21.o syx_fb01.o dmp_file.o md5.o
+libfmvoice.a: op3_file.o opm_file.o bnk_file.o ins_file.o sbi_file.o tfi_file.o y12_file.o syx_dx21.o syx_fb01.o dmp_file.o md5.o opl_voice.o opm_voice.o opn_voice.o fm_voice_bank.o loader.o
 	$(AR) cr $@ $^
 
 fmbankdump: fmbankdump.o tools.o libfmvoice.a

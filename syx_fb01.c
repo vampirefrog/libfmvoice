@@ -192,7 +192,7 @@ static void voice_cb(struct fb01_bulk_voice *voice, int voicenum, void *data_ptr
 	if(voicenum < 48) memcpy(bank->voices + voicenum, voice, sizeof(*voice));
 }
 
-#ifndef __EMSCRIPTEN__
+#ifndef HAVE_STDIO
 static uint8_t safechar(uint8_t c) {
 	return (c > 48 && c < 127) || c == 0x20 ? c : '.';
 }
@@ -361,3 +361,56 @@ int fb01_bulk_voice_bank_send(struct fb01_bulk_voice_bank *bank, int (*write)(vo
 
 	return FB01_SUCCESS;
 }
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+
+static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
+	struct fb01_bulk_voice_bank f;
+	int r = fb01_bulk_voice_bank_from_buffer(&f, data, data_len);
+	if(r) return r;
+	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f.num_voices);
+	if(!voice) return -1;
+	for(int i = 0; i < f.num_voices; i++) {
+		struct fb01_bulk_voice *v = &f.voices[i];
+		memcpy(voice->name, v->name, 7);
+		voice->lfrq = v->lfo_speed;
+		voice->amd = v->am_depth;
+		voice->pmd = v->pm_depth;
+		voice->w = v->lfo_waveform;
+		voice->ne_nfrq = 0;
+		voice->rl_fb_con = 3 << 6 | v->fb_level << 3 | v->algorithm;
+		voice->pms_ams = v->pm_sens << 4 | v->am_sens;
+		voice->slot = 0x0f;
+		for(int j = 0; j < 4; j++) {
+			struct opm_voice_operator *op = &voice->operators[j];
+			struct fb01_bulk_voice_op *fop = &v->op[j];
+			op->dt1_mul = fop->detune << 4 | fop->freq;
+			op->tl = fop->tl & 0x7f;
+			op->ks_ar = fop->ks_rate_depth << 6 | fop->ar;
+			op->ams_d1r = fop->d1r & 0x1f;
+			op->dt2_d2r = (fop->inharmonic_freq & 0x03) << 6 | (fop->d2r & 0x1f);
+			op->d1l_rr = fop->sl << 4 | fop->rr;
+			op->ws = 0;
+		}
+		voice++;
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+struct loader syx_fb01_loader = {
+	.load = load,
+	.save = save,
+	.name = "SYX_FB01",
+	.description = "FB01 SysEx dump",
+	.file_ext = "syx",
+	.max_opl_voices = 48,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+
+#endif

@@ -238,7 +238,7 @@ static void voice_cb(struct dx21_vced_voice *voice, int voicenum, void *data_ptr
 	if(voicenum < 48) memcpy(bank->voices + voicenum, voice, sizeof(*voice));
 }
 
-#ifndef __EMSCRIPTEN__
+#ifdef HAVE_STDIO
 static uint8_t safechar(uint8_t c) {
 	return (c > 48 && c < 127) || c == 0x20 ? c : '.';
 }
@@ -435,3 +435,83 @@ int dx21_vced_voice_bank_send(struct dx21_vced_voice_bank *bank, int (*write)(vo
 
 	return DX21_SUCCESS;
 }
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+
+/* DX21 and some other synths use a lookup table for MUL and DT values, indexed by the "FREQUENCY" parameter (0-63)
+ *
+ * This table can be found in their ROMS:
+ * DX100 1.1 0x0b63
+ * DX21  1.4 0x5184
+ * DX21  1.5 0x51b8
+ * DX21  1.6 0x51b1
+ * TX81Z 1.0 0x34cb
+ * TX81Z 1.1 0x34de
+ * TX81Z 1.2 0x34e9
+ * TX81Z 1.3 0x34e9
+ * TX81Z 1.4 0x34e9
+ * TX81Z 1.5 0x34e9
+ * TX81Z 1.6 0x34ea
+ *
+ * Thanks to andlabs for pointing this out!
+ */
+static const uint8_t vced_mul_dt2_table[] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0C, 0x0A, 0x0B, 0x10, 0x0D, 0x0E,
+	0x14, 0x0F, 0x11, 0x18, 0x12, 0x13, 0x1C, 0x15,
+	0x16, 0x20, 0x19, 0x17, 0x24, 0x1A, 0x1D, 0x28,
+	0x1B, 0x1E, 0x2C, 0x21, 0x30, 0x1F, 0x22, 0x25,
+	0x34, 0x23, 0x38, 0x29, 0x26, 0x3C, 0x2D, 0x27,
+	0x2A, 0x31, 0x2E, 0x2B, 0x35, 0x32, 0x2F, 0x39,
+	0x36, 0x33, 0x3D, 0x3A, 0x37, 0x3E, 0x3B, 0x3F,
+};
+
+static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
+	struct dx21_vced_voice_bank f;
+	int r = dx21_vced_voice_bank_from_buffer(&f, data, data_len);
+	if(r) return r;
+	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f.num_voices);
+	if(!voice) return -1;
+	for(int i = 0; i < f.num_voices; i++) {
+		struct dx21_vced_voice *v = &f.voices[i];
+		memcpy(voice->name, v->name, 10);
+		voice->rl_fb_con = 3 << 6 | (v->feedback & 0x07) << 3 | (v->algorithm & 0x07);
+		voice->lfrq = 255 * v->lfo_speed / 99;
+		voice->amd = v->lfo_amd * 127 / 99;
+		voice->pmd = v->lfo_pmd * 127 / 99;
+		voice->w = v->lfo_wave;
+		voice->pms_ams = (v->pm_sens & 0x07) << 4 | (v->am_sens & 0x03) >> 1;
+		voice->slot = 0x0f;
+		for(int j = 0; j < 4; j++) {
+			struct opm_voice_operator *op = &voice->operators[j];
+			struct dx21_vced_voice_op *fop = &v->op[j];
+			uint8_t mul_dt2 = vced_mul_dt2_table[fop->freq & 0x3f];
+			op->dt1_mul = (fop->detune & 0x07) << 4 | mul_dt2 >> 2;
+			op->tl = fop->ol * 127 / 99;
+			op->ks_ar = fop->ksr << 6 | (fop->ar & 0x1f);
+			op->ams_d1r = fop->ame << 7 | (fop->d1r & 0x1f);
+			op->dt2_d2r = (mul_dt2 & 0x03) << 6 | (fop->d2r & 0x1f);
+			op->d1l_rr = fop->d1l << 4 | (fop->rr & 0x0f);
+			op->ws = fop->opw;
+		}
+		voice++;
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+struct loader syx_dx21_loader = {
+	.load = load,
+	.save = save,
+	.name = "SYX_DX21",
+	.description = "DX21 SysEx dump",
+	.file_ext = "syx",
+	.max_opl_voices = 48,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+#endif

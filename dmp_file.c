@@ -54,6 +54,7 @@ int dmp_file_load(struct dmp_file *f, uint8_t *data, size_t data_len, int system
 	return 0;
 }
 
+#ifdef HAVE_STDIO
 void dmp_file_dump(struct dmp_file *dmp) {
 	printf("version=%d mode=%d\n", dmp->version, dmp->mode);
 	if(dmp->mode != 1) return;
@@ -78,3 +79,27 @@ void dmp_file_dump(struct dmp_file *dmp) {
 		);
 	}
 }
+#endif
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+
+static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
+	return -1;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+struct loader dmp_file_loader = {
+	.load = load,
+	.save = save,
+	.name = "DMP",
+	.description = "DefleMask Preset Format",
+	.file_ext = "dmp",
+	.max_opl_voices = 1,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+#endif

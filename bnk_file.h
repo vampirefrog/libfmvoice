@@ -2,6 +2,7 @@
 #define BNK_FILE_H_
 
 #include <stdint.h>
+#include "fm_voice_bank.h"
 
 struct bnk_file_operator {
 	uint8_t ksl, mul, fb, ar, sl, eg, dr, rr, tl, am, vib, ksr, con, wave_sel;
@@ -30,5 +31,7 @@ int bnk_file_load(struct bnk_file *f, uint8_t *data, size_t data_len);
 int bnk_file_test(uint8_t *data, size_t data_len);
 int bnk_file_save(struct bnk_file *f, int (*write_fn)(void *buf, size_t len, void *data_ptr), void *data_ptr);
 void bnk_file_dump(struct bnk_file *f);
+int bnk_file_append_to_fm_bank(struct bnk_file *f, struct fm_voice_bank *bank);
+int bnk_file_load_from_fm_bank(struct fm_voice_bank *, int starting_voice_num, struct bnk_file *f, int *num_voices_written);
 
 #endif /* BNK_FILE_H_ */
