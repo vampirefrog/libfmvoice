@@ -67,7 +67,7 @@ struct opm_voice *fm_voice_bank_reserve_opm_voices(struct fm_voice_bank *bank, i
 struct opn_voice *fm_voice_bank_reserve_opn_voices(struct fm_voice_bank *bank, int num_voices) {
 	int old_num = bank->num_opn_voices;
 	bank->num_opn_voices += num_voices;
-	bank->opl_voices = realloc(bank->opl_voices, bank->num_opl_voices * sizeof(*bank->opn_voices));
+	bank->opn_voices = realloc(bank->opn_voices, bank->num_opn_voices * sizeof(*bank->opn_voices));
 	if(!bank->opn_voices) return 0;
 	return bank->opn_voices + old_num;
 }
