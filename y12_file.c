@@ -41,7 +41,7 @@ int y12_file_save(struct y12_file *f, int (*write_fn)(void *, size_t, void *), v
 }
 
 #ifdef HAVE_STDIO
-#include "tools.h"
+static char safechar(char c) { return c >= 0x20 && c < 0x7f ? c : '.'; }
 
 void y12_file_dump(struct y12_file *f) {
 	printf("alg=%d fb=%d\n", f->alg, f->fb);

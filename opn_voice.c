@@ -169,3 +169,22 @@ float opnx_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock) {
 	int fnum = (block_fnum2 & 0x07) << 8 | fnum1;
 	return (float)fnum * (float)clock * powf(2.0, block - 21.0) / 144.0;
 }
+
+uint8_t opn_voice_get_lfo(struct opn_voice *v) { return v->lfo & 0x0f; }
+uint8_t opn_voice_get_slot(struct opn_voice *v) { return v->slot & 0x0f; }
+uint8_t opn_voice_get_fb(struct opn_voice *v) { return v->fb_con >> 3 & 0x07; }
+uint8_t opn_voice_get_con(struct opn_voice *v) { return v->fb_con & 0x07; }
+uint8_t opn_voice_get_lr(struct opn_voice *v) { return v->lr_ams_pms >> 6; }
+uint8_t opn_voice_get_ams(struct opn_voice *v) { return v->lr_ams_pms >> 4 & 0x03; }
+uint8_t opn_voice_get_pms(struct opn_voice *v) { return v->lr_ams_pms & 0x07; }
+uint8_t opn_voice_get_operator_dt(struct opn_voice *v, int op) { return v->operators[op].dt_mul >> 4 & 0x07; }
+uint8_t opn_voice_get_operator_mul(struct opn_voice *v, int op) { return v->operators[op].dt_mul & 0x0f; }
+uint8_t opn_voice_get_operator_tl(struct opn_voice *v, int op) { return v->operators[op].tl & 0x7f; }
+uint8_t opn_voice_get_operator_ks(struct opn_voice *v, int op) { return v->operators[op].ks_ar >> 6; }
+uint8_t opn_voice_get_operator_ar(struct opn_voice *v, int op) { return v->operators[op].ks_ar & 0x1f; }
+uint8_t opn_voice_get_operator_am(struct opn_voice *v, int op) { return v->operators[op].am_dr >> 7; }
+uint8_t opn_voice_get_operator_dr(struct opn_voice *v, int op) { return v->operators[op].am_dr & 0x1f; }
+uint8_t opn_voice_get_operator_sr(struct opn_voice *v, int op) { return v->operators[op].sr & 0x0f; }
+uint8_t opn_voice_get_operator_sl(struct opn_voice *v, int op) { return v->operators[op].sl_rr >> 4; }
+uint8_t opn_voice_get_operator_rr(struct opn_voice *v, int op) { return v->operators[op].sl_rr & 0x0f; }
+uint8_t opn_voice_get_operator_ssg_eg(struct opn_voice *v, int op) { return v->operators[op].ssg_eg & 0x0f; }

@@ -31,25 +31,25 @@ int opl_voice_load_opn_voice(struct opl_voice *oplv, struct opn_voice *opnv);
 int opl_pitch_to_block_fnum(float pitch, int clock);
 float opl_block_fnum_to_pitch(uint8_t block_fnum2, uint8_t fnum1, int clock);
 
-inline uint8_t opl_voice_get_ch(struct opl_voice *v) { return v->ch_fb_cnt[0] >> 4; }
-inline uint8_t opl_voice_get_fb(struct opl_voice *v) { return v->ch_fb_cnt[0] >> 1 & 0x07; }
-inline uint8_t opl_voice_get_cnt(struct opl_voice *v) { return v->ch_fb_cnt[0] & 0x01; }
-inline uint8_t opl_voice_get_ch1(struct opl_voice *v) { return v->ch_fb_cnt[1] >> 4; }
-inline uint8_t opl_voice_get_fb1(struct opl_voice *v) { return v->ch_fb_cnt[1] >> 1 & 0x07; }
-inline uint8_t opl_voice_get_cnt1(struct opl_voice *v) { return v->ch_fb_cnt[1] & 0x01; }
-inline uint8_t opl_voice_get_am_depth(struct opl_voice *v) { return v->dam_dvb_ryt_bd_sd_tom_tc_hh >> 7; }
-inline uint8_t opl_voice_get_vib_depth(struct opl_voice *v) { return v->dam_dvb_ryt_bd_sd_tom_tc_hh >> 6 & 0x01; }
-inline uint8_t opl_voice_get_ryt(struct opl_voice *v) { return v->dam_dvb_ryt_bd_sd_tom_tc_hh >> 5 & 0x01; }
-inline uint8_t opl_voice_get_perc(struct opl_voice *v) { return v->dam_dvb_ryt_bd_sd_tom_tc_hh >> 4 & 0x1f; }
-inline uint8_t opl_voice_operator_get_am(struct opl_voice *v, int op) { return v->operators[op].am_vib_eg_ksr_mul >> 7; }
-inline uint8_t opl_voice_operator_get_vib(struct opl_voice *v, int op) { return v->operators[op].am_vib_eg_ksr_mul >> 6 & 0x01; }
-inline uint8_t opl_voice_operator_get_eg_typ(struct opl_voice *v, int op) { return v->operators[op].am_vib_eg_ksr_mul >> 5 & 0x01; }
-inline uint8_t opl_voice_operator_get_ksr(struct opl_voice *v, int op) { return v->operators[op].am_vib_eg_ksr_mul >> 4 & 0x01; }
-inline uint8_t opl_voice_operator_get_mul(struct opl_voice *v, int op) { return v->operators[op].am_vib_eg_ksr_mul & 0x0f; }
-inline uint8_t opl_voice_operator_get_ksl(struct opl_voice *v, int op) { return v->operators[op].ksl_tl >> 6; }
-inline uint8_t opl_voice_operator_get_tl(struct opl_voice *v, int op) { return v->operators[op].ksl_tl & 0x3f; }
-inline uint8_t opl_voice_operator_get_ar(struct opl_voice *v, int op) { return v->operators[op].ar_dr >> 4; }
-inline uint8_t opl_voice_operator_get_dr(struct opl_voice *v, int op) { return v->operators[op].ar_dr & 0x0f; }
-inline uint8_t opl_voice_operator_get_sl(struct opl_voice *v, int op) { return v->operators[op].sl_rr >> 4; }
-inline uint8_t opl_voice_operator_get_rr(struct opl_voice *v, int op) { return v->operators[op].sl_rr & 0x0f; }
-inline uint8_t opl_voice_operator_get_ws(struct opl_voice *v, int op) { return v->operators[op].ws & 0x07; }
+uint8_t opl_voice_get_ch(struct opl_voice *v);
+uint8_t opl_voice_get_fb(struct opl_voice *v);
+uint8_t opl_voice_get_cnt(struct opl_voice *v);
+uint8_t opl_voice_get_ch1(struct opl_voice *v);
+uint8_t opl_voice_get_fb1(struct opl_voice *v);
+uint8_t opl_voice_get_cnt1(struct opl_voice *v);
+uint8_t opl_voice_get_am_depth(struct opl_voice *v);
+uint8_t opl_voice_get_vib_depth(struct opl_voice *v);
+uint8_t opl_voice_get_ryt(struct opl_voice *v);
+uint8_t opl_voice_get_perc(struct opl_voice *v);
+uint8_t opl_voice_operator_get_am(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_vib(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_eg_typ(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_ksr(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_mul(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_ksl(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_tl(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_ar(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_dr(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_sl(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_rr(struct opl_voice *v, int op);
+uint8_t opl_voice_operator_get_ws(struct opl_voice *v, int op);
