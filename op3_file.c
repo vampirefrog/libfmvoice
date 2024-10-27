@@ -43,6 +43,7 @@ int op3_file_load(struct op3_file *f, uint8_t *data, size_t data_len) {
 	return 0;
 }
 
+#ifdef HAVE_STDIO
 static void op3_dump_instrument(struct op3_file_instrument *inst) {
 	printf("en_4op=%d percnotenum=%d\n", inst->en_4op, inst->percnotenum);
 	printf("OP AM VIB EG KSR MUL KSL TL AR DR SL RR WS\n");
@@ -83,3 +84,58 @@ void op3_file_dump(struct op3_file *f) {
 		op3_dump_instrument(&f->percussive[i]);
 	}
 }
+#endif
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+
+static int opl_voice_from_op3_file_instrument(struct opl_voice *v, struct op3_file_instrument *inst) {
+	v->en_4op = inst->en_4op;
+	v->perc_inst = inst->percnotenum;
+	v->ch_fb_cnt[0] = 0xf0 | inst->fb_con12;
+	v->ch_fb_cnt[1] = 0xf0 | inst->fb_con34;
+	v->dam_dvb_ryt_bd_sd_tom_tc_hh = 0;
+	for(int i = 0; i < 4; i++) {
+		struct opl_voice_operator *op = &v->operators[i];
+		struct op3_file_instrument_op *op3 = &inst->op[i];
+		op->am_vib_eg_ksr_mul = op3->ave_kvm;
+		op->ksl_tl = op3->ksl_tl;
+		op->ar_dr = op3->ar_dr;
+		op->sl_rr = op3->sl_rr;
+		op->ws = op3->ws;
+	}
+	return 0;
+}
+
+static int load(void *data, int data_len, struct fm_voice_bank *bank) {
+	struct op3_file f;
+	int r = op3_file_load(&f, data, data_len);
+	if(r) return r;
+	struct opl_voice *voice = fm_voice_bank_reserve_opl_voices(bank, f.count_melodic + f.count_percussive);
+	if(!voice) return -1;
+	for(int i = 0; i < f.count_melodic; i++) {
+		opl_voice_from_op3_file_instrument(voice, &f.melodic[i]);
+		voice++;
+	}
+	for(int i = 0; i < f.count_percussive; i++) {
+		opl_voice_from_op3_file_instrument(voice, &f.percussive[i]);
+		voice++;
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+struct loader op3_file_loader = {
+	.load = load,
+	.save = save,
+	.name = "OP3",
+	.description = "OP3",
+	.file_ext = "op3",
+	.max_opl_voices = 1,
+	.max_opm_voices = 0,
+	.max_opn_voices = 0,
+};
+#endif

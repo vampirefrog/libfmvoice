@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include "y12_file.h"
-#include "tools.h"
 
 void y12_file_init(struct y12_file *f) {
 	memset(f, 0, sizeof(*f));
@@ -36,6 +35,13 @@ int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 
 	return 0;
 }
+
+int y12_file_save(struct y12_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	return -1;
+}
+
+#ifdef HAVE_STDIO
+static char safechar(char c) { return c >= 0x20 && c < 0x7f ? c : '.'; }
 
 void y12_file_dump(struct y12_file *f) {
 	printf("alg=%d fb=%d\n", f->alg, f->fb);
@@ -74,3 +80,51 @@ void y12_file_dump(struct y12_file *f) {
 		);
 	}
 }
+#endif
+
+#ifdef ENABLE_LOADERS
+#include "loader.h"
+#include "tools.h"
+
+static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
+	struct y12_file f;
+	int r = y12_file_load(&f, data, data_len);
+	if(r) return r;
+	struct opn_voice *voice = fm_voice_bank_reserve_opn_voices(bank, 1);
+	if(!voice) return -1;
+	snprintf(voice->name, sizeof(voice->name), "%.*s", MIN(f.name_len, 16), f.name);
+	snprintf(voice->dumper, sizeof(voice->dumper), "%.*s", MIN(f.dumper_len, 16), f.dumper);
+	snprintf(voice->game, sizeof(voice->game), "%.*s", MIN(f.game_len, 16), f.game);
+	voice->fb_con = (f.fb & 0x07) << 3 | (f.alg & 0x07);
+	for(int i = 0; i < 4; i++) {
+		struct opn_voice_operator *op = &voice->operators[i];
+		struct y12_file_operator *fop = &f.operators[i];
+		op->dt_mul = fop->mul_dt;
+		op->tl = fop->tl & 0x7f;
+		op->ks_ar = fop->ar_rs;
+		op->am_dr = fop->dr_am;
+		op->sr = fop->sr;
+		op->sl_rr = fop->rr_sl;
+		op->ssg_eg = fop->ssg;
+	}
+	return 0;
+}
+
+static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	struct y12_file f;
+
+	pos->opn++;
+	return y12_file_save(&f, write_fn, data_ptr);
+}
+
+struct loader y12_file_loader = {
+	.load = load,
+	.save = save,
+	.name = "Y12",
+	.description = "Y12",
+	.file_ext = "y12",
+	.max_opl_voices = 0,
+	.max_opm_voices = 1,
+	.max_opn_voices = 0,
+};
+#endif
