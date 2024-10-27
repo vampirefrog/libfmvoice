@@ -63,9 +63,9 @@ int fb01_midi_receive_voice(struct fb01_midi_receiver *rx, uint8_t byte) {
 				struct fb01_bulk_voice_op *op = &rx->voice.op[oppos >> 3];
 				switch(oppos & 0x07) {
 					case 0x00: op->tl = byte & 0x7f; break;
-					case 0x01: op->ks_type = byte >> 7; op->tl_sensitivity = byte >> 4 & 0x07; break;
+					case 0x01: op->ks_type_bit0 = byte >> 7; op->tl_sensitivity = byte >> 4 & 0x07; break;
 					case 0x02: op->ks_level_depth = byte >> 4; op->tl_adjust = byte & 0x0f; break;
-					case 0x03: op->ks_type |= byte >> 6 & 0x02; op->detune = byte >> 4 & 0x07; op->freq = byte & 0x0f; break;
+					case 0x03: op->ks_type_bit1 = byte >> 7; op->detune = byte >> 4 & 0x07; op->freq = byte & 0x0f; break;
 					case 0x04: op->ks_rate_depth = byte >> 6; op->ar = byte & 0x1f; break;
 					case 0x05: op->carrier = byte >> 7; op->ar_velocity_sens = byte >> 5 & 0x03; op->d1r = byte & 0x1f; break;
 					case 0x06: op->inharmonic_freq = byte >> 6; op->d2r = byte & 0x1f; break;
@@ -339,9 +339,9 @@ int fb01_bulk_voice_bank_send(struct fb01_bulk_voice_bank *bank, int (*write)(vo
 		for(int j = 0; j < 4; j++) {
 			struct fb01_bulk_voice_op *op = voice->op + j;
 			PUTBYTE(op->tl & 0x7f);
-			PUTBYTE((op->ks_type & 0x01) << 7 | op->tl_sensitivity << 4);
+			PUTBYTE((op->ks_type_bit0 & 0x01) << 7 | op->tl_sensitivity << 4);
 			PUTBYTE(op->ks_level_depth << 4 | op->tl_adjust);
-			PUTBYTE((op->ks_type & 0x02) << 6 | op->detune << 4 | op->freq);
+			PUTBYTE((op->ks_type_bit0 & 0x01) << 7 | op->detune << 4 | op->freq);
 			PUTBYTE(op->ks_rate_depth << 6 | op->ar);
 			PUTBYTE(op->carrier << 7 | op->ar_velocity_sens << 5 | op->d1r);
 			PUTBYTE(op->inharmonic_freq << 6 | op->d2r);
