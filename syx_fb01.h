@@ -12,10 +12,11 @@
 
 struct fb01_bulk_voice_op {
 	uint8_t tl;                  // TOTAL LEVEL                           0-127 (0=Max. level)
-	unsigned ks_type:2;          // KEYBOARD SCALING (LEVEL) TYPE BIT0/1  0-3
+	unsigned ks_type_bit0:1;     // KEYBOARD SCALING (LEVEL) TYPE BIT0    0-1
 	unsigned tl_sensitivity:3;   // VELOCITY SENSITIVITY FOR TL           0-7
 	unsigned ks_level_depth:4;   // KEYBOARD SCALING (LEVEL) DEPTH        0-15
 	unsigned tl_adjust:4;        // ADJUST FOR TL                         0-15
+	unsigned ks_type_bit1:1;     // KEYBOARD SCALING (LEVEL) TYPE BIT1    0-1
 	unsigned detune:3;           // DETUNE                                0-7
 	unsigned freq:4;             // FREQUENCY                             0-15
 	unsigned ks_rate_depth:2;    // KEYBOARD SCALING (RATE) DEPTH         0-3
