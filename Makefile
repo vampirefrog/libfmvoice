@@ -3,10 +3,12 @@ CC=gcc
 CFLAGS=-Wall -O2
 LDFLAGS=-lz -lm
 PROGS=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdump sbidump
+OTHER=fb01spam
 
-.PHONY: all
+.PHONY: all other
 
 all: $(PROGS)
+other: $(OTHER)
 
 fmbankdump: fmbankdump.o tools.o fm_voice.o op3_file.o opm_file.o bnk_file.o ins_file.o sbi_file.o tfi_file.o y12_file.o syx_dx21.o syx_fb01.o dmp_file.o
 	$(CC) $^ $(LDFLAGS) -o $@
@@ -31,10 +33,13 @@ sbidump: sbidump.o sbi_file.o tools.o
 op3dump: op3dump.o op3_file.o tools.o
 	$(CC) $^ $(LDFLAGS) -o $@
 
+fb01spam: fb01spam.o midi_file.o stream.o buffer.o midi_track.o
+	$(CC) $^ $(LDFLAGS) -o $@
+
 %.o: %.c
 	$(CC) $(CFLAGS) -MMD -c $< -o $@
 
 -include $(OBJS:.o=.d)
 
 clean:
-	rm -f *.o *.a *.d $(PROGS)
+	rm -f *.o *.a *.d $(PROGS) $(OTHER)
