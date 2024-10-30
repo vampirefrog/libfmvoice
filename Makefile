@@ -1,7 +1,8 @@
-AR?=ar
-CC?=gcc
-CFLAGS?=-Wall -O2 -DHAVE_STDIO -DENABLE_LOADERS
-LDFLAGS?=-lz -lm
+AR=ar
+CC=gcc
+CFLAGS=-Wall -ggdb -DHAVE_STDIO -DENABLE_LOADERS
+LDFLAGS=-lz -lm
+
 PROGS:=fmbankdump dmpdump dx21dump fb01dump insdump opmdump tfidump y12dump bnkdump sbidump
 
 .PHONY: all

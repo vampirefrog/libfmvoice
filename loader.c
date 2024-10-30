@@ -22,6 +22,7 @@ struct loader *loaders[] = {
 	&syx_fb01_loader,
 	&tfi_file_loader,
 	&y12_file_loader,
+	0
 };
 
 struct loader *get_loader_by_name(char *name) {

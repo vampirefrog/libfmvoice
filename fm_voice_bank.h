@@ -34,3 +34,4 @@ struct opn_voice *fm_voice_bank_reserve_opn_voices(struct fm_voice_bank *bank, i
 #ifdef HAVE_STDIO
 void fm_voice_bank_dump(struct fm_voice_bank *bank);
 #endif
+int fm_voice_bank_load(struct fm_voice_bank *bank, void *data, size_t data_len);

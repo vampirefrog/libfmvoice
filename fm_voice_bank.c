@@ -7,6 +7,7 @@
 #include "opl_voice.h"
 #include "opm_voice.h"
 #include "opn_voice.h"
+#include "loader.h"
 
 void fm_voice_bank_position_copy(struct fm_voice_bank_position *to, struct fm_voice_bank_position *from) {
 	memcpy(to, from, sizeof(*to));
@@ -88,3 +89,14 @@ void fm_voice_bank_dump(struct fm_voice_bank *bank) {
 	}
 }
 #endif
+
+int fm_voice_bank_load(struct fm_voice_bank *bank, void *data, size_t data_len) {
+	struct fm_voice_bank_position pos;
+	fm_voice_bank_position_init(&pos);
+	for(int i = 0; loaders[i]; i++) {
+		struct loader *l = loaders[i];
+		if(!l->load(data, data_len, bank))
+			return 0;
+	}
+	return -1;
+}
