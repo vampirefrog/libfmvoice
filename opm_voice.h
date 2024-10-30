@@ -20,6 +20,14 @@ struct opm_voice {
 	// per channel fields
 	uint8_t rl_fb_con, pms_ams, slot;
 	struct opm_voice_operator operators[4];
+
+	// We implement the DX21 Pitch Envelope Generator
+	// 0 - 99
+	uint8_t pitch_eg_rate[3];
+	uint8_t pitch_eg_level[3];
+
+	// FB01 portamento
+	uint8_t portamento_speed;
 };
 void opm_voice_init(struct opm_voice *);
 void opm_voice_dump(struct opm_voice *);
