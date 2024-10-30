@@ -217,7 +217,6 @@ int dx21_midi_receive(struct dx21_midi_receiver *rx, uint8_t byte) {
 			rx->data_pos++;
 			if(rx->data_pos >= rx->byte_count)
 				rx->state = DX21_RX_CHECKSUM;
-
 			if(rx->format == 0x03) // one voice
 				return dx21_midi_receive_vmem_voice(rx, byte);
 			else /* 0x04 */ // 32 voices
@@ -483,6 +482,12 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 		voice->w = v->lfo_wave;
 		voice->pms_ams = (v->pm_sens & 0x07) << 4 | (v->am_sens & 0x03) >> 1;
 		voice->slot = 0x0f;
+		voice->pitch_eg_rate[0] = v->peg_rate_1;
+		voice->pitch_eg_rate[1] = v->peg_rate_2;
+		voice->pitch_eg_rate[2] = v->peg_rate_3;
+		voice->pitch_eg_level[0] = v->level_1;
+		voice->pitch_eg_level[1] = v->level_2;
+		voice->pitch_eg_level[2] = v->level_3;
 		for(int j = 0; j < 4; j++) {
 			struct opm_voice_operator *op = &voice->operators[j];
 			struct dx21_vced_voice_op *fop = &v->op[j];
