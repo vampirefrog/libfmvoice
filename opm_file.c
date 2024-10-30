@@ -359,6 +359,7 @@ void opm_file_dump(struct opm_file *f) {
 
 static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 	struct opm_file f;
+	opm_file_init(&f);
 	int r = opm_file_load(&f, data, data_len);
 	if(r) return r;
 	struct opm_voice *voice = fm_voice_bank_reserve_opm_voices(bank, f.num_voices);
