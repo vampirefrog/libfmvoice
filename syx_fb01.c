@@ -192,7 +192,7 @@ static void voice_cb(struct fb01_bulk_voice *voice, int voicenum, void *data_ptr
 	if(voicenum < 48) memcpy(bank->voices + voicenum, voice, sizeof(*voice));
 }
 
-#ifndef HAVE_STDIO
+#ifdef HAVE_STDIO
 static uint8_t safechar(uint8_t c) {
 	return (c > 48 && c < 127) || c == 0x20 ? c : '.';
 }
@@ -235,7 +235,7 @@ void fb01_bulk_voice_dump(struct fb01_bulk_voice *voice, int voicenum) {
 			voice->op[j].tl,
 			voice->op[j].tl_sensitivity,
 			voice->op[j].tl_adjust,
-			voice->op[j].ks_type,
+			voice->op[j].ks_type_bit0 | voice->op[j].ks_type_bit1 << 1,
 			voice->op[j].ks_level_depth,
 			voice->op[j].ks_rate_depth,
 			voice->op[j].freq,
