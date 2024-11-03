@@ -1,0 +1,26 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	 "build_systems":
+	[
+		{
+			"name": "Make",
+			"shell_cmd": "make",
+			"file_regex": "^(..[^:\n]*):([0-9]+):?([0-9]+)?:? (.*)$",
+			"selector": "source.makefile",
+			"syntax": "Packages/Makefile/Make Output.sublime-syntax",
+			"working_dir": "${folder:${project_path:${file_path}}}",
+			"keyfiles": ["Makefile", "makefile"],
+			"variants": [
+				{
+					"name": "Make clean",
+					"shell_cmd": "make clean"
+				}
+			]
+		}
+	]
+}
