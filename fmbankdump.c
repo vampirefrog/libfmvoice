@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "tools.h"
-#include "fm_voice.h"
+#include "fm_voice_bank.h"
 
 int main(int argc, char **argv) {
 	struct fm_voice_bank bank;
