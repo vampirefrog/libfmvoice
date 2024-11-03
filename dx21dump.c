@@ -7,9 +7,9 @@
 #include "platform.h"
 #include "syx_dx21.h"
 
-static size_t midi_write_func(void *buf, size_t bytes, void *data_ptr) {
+static int midi_write_func(void *buf, size_t bytes, void *data_ptr) {
 	FILE *f = (FILE *)data_ptr;
-	return fwrite(buf, 1, bytes, f);
+	return fwrite(buf, 1, bytes, f) == bytes ? 0 : -1;
 }
 
 int main(int argc, char **argv) {
