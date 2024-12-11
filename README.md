@@ -1,6 +1,8 @@
 FM voice loading, saving and conversion library
 ===============================================
 
+![Project status](https://img.shields.io/badge/Project%20status-Alpha-blue.svg)
+
 [![Linux Build](https://github.com/vampirefrog/libfmvoice/actions/workflows/linux.yml/badge.svg)](https://github.com/vampirefrog/libfmvoice/actions/workflows/linux.yml)
 
 Code for loading and saving various FM voice formats meant for the Yamaha YM series of chips (OPL, OPM, OPN etc.), format autodetection code, and conversion between the various formats.
