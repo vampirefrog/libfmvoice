@@ -373,7 +373,7 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 		voice->w = v->lfo_wf & 0x03;
 		voice->ne_nfrq = v->ch_ne << 7 | (v->nfrq & 0x1f);
 		voice->rl_fb_con = (v->ch_pan & 0xc0) | (v->ch_fl & 0x07) << 3 | (v->ch_con & 0x07);
-		voice->pms_ams = (v->ch_ams & 0x07) << 4 | (v->ch_pms & 0x03);
+		voice->pms_ams = (v->ch_pms & 0x07) << 4 | (v->ch_ams & 0x03);
 		voice->slot = v->ch_slot >> 3;
 		for(int j = 0; j < 4; j++) {
 			struct opm_voice_operator *op = &voice->operators[j];
@@ -398,12 +398,13 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 		struct opm_file_voice fv;
 		memset(&fv, 0, sizeof(fv));
 		fv.number = i;
-		snprintf(fv.name, sizeof(fv.name), "Instrument %d", i);
-		fv.lfo_lfrq = 0;
-		fv.lfo_amd = 0;
-		fv.lfo_pmd = 0;
-		fv.lfo_wf = 0;
-		fv.nfrq = 0;
+		if(v->name && strlen(v->name) > 0) snprintf(fv.name, sizeof(fv.name), v->name);
+		else snprintf(fv.name, sizeof(fv.name), "Instrument %d", i);
+		fv.lfo_lfrq = v->lfrq;
+		fv.lfo_amd = v->amd;
+		fv.lfo_pmd = v->pmd;
+		fv.lfo_wf = v->w;
+		fv.nfrq = v->ne_nfrq;
 		fv.ch_pan = 64;
 		fv.ch_fl = v->rl_fb_con >> 3 & 0x07;
 		fv.ch_con = v->rl_fb_con & 0x07;
@@ -423,7 +424,8 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 			fop->tl = op->tl & 0x7f;
 			fop->ks = op->ks_ar >> 6;
 			fop->mul = op->dt1_mul & 0x0f;
-			fop->dt1 = dtmap[op->dt1_mul >> 4 & 0x07];
+			// fop->dt1 = dtmap[op->dt1_mul >> 4 & 0x07];
+			fop->dt1 = (op->dt1_mul >> 4) & 0x07;
 			fop->dt2 = op->dt2_d2r >> 6;
 			fop->ame = op->ams_d1r >> 7;
 		}
@@ -439,8 +441,8 @@ struct loader opm_file_loader = {
 	.name = "OPM",
 	.description = "MiOPMdrv Sound Bank Parameter",
 	.file_ext = "opm",
-	.max_opl_voices = 128,
-	.max_opm_voices = 0,
+	.max_opl_voices = 0,
+	.max_opm_voices = 128,
 	.max_opn_voices = 0,
 };
 #endif
