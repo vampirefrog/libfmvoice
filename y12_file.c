@@ -37,7 +37,28 @@ int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 }
 
 int y12_file_save(struct y12_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
-	return -1;
+	uint8_t buf[128] = { 0 };
+	int bc = 0;
+	for(int i = 0; i < 4; i++) {
+		buf[bc++] = f->operators[i].mul_dt;
+		buf[bc++] = f->operators[i].tl;
+		buf[bc++] = f->operators[i].ar_rs;
+		buf[bc++] = f->operators[i].dr_am;
+		buf[bc++] = f->operators[i].sr;
+		buf[bc++] = f->operators[i].rr_sl;
+		buf[bc++] = f->operators[i].ssg;
+		bc += 9;
+	}
+	buf[bc++] = f->alg;
+	buf[bc++] = f->fb;
+	bc += 14;
+	memcpy(&buf[bc], f->name, 16);
+	bc += 16;
+	memcpy(&buf[bc], f->dumper, 16);
+	bc += 16;
+	memcpy(&buf[bc], f->game, 16);
+	bc += 16;
+	return write_fn(buf, 128, data_ptr);
 }
 
 #ifdef HAVE_STDIO
@@ -111,8 +132,24 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	if(bank->num_opn_voices <= pos->opn) return -1;
 	struct y12_file f;
-
+	strcpy(f.name, bank->opn_voices[pos->opn].name);
+	strcpy(f.dumper, bank->opn_voices[pos->opn].dumper);
+	strcpy(f.game, bank->opn_voices[pos->opn].game);
+	f.name_len = strlen(bank->opn_voices[pos->opn].name);
+	f.dumper_len = strlen(bank->opn_voices[pos->opn].dumper);
+	f.game_len = strlen(bank->opn_voices[pos->opn].game);
+	f.fb = bank->opn_voices[pos->opn].fb_con >> 3;
+	f.alg = bank->opn_voices[pos->opn].fb_con & 0x07;
+	for(int i = 0; i < 4; i++) {
+		f.operators[i].mul_dt = bank->opn_voices[pos->opn].operators[i].dt_mul;
+		f.operators[i].tl = opn_voice_get_operator_tl(bank->opn_voices + pos->opn, i);
+		f.operators[i].ar_rs = bank->opn_voices[pos->opn].operators[i].ks_ar;
+		f.operators[i].dr_am = bank->opn_voices[pos->opn].operators[i].am_dr;
+		f.operators[i].sr = opn_voice_get_operator_sr(bank->opn_voices + pos->opn, i);
+		f.operators[i].rr_sl = bank->opn_voices[pos->opn].operators[i].sl_rr;
+	}
 	pos->opn++;
 	return y12_file_save(&f, write_fn, data_ptr);
 }
@@ -124,7 +161,7 @@ struct loader y12_file_loader = {
 	.description = "Y12",
 	.file_ext = "y12",
 	.max_opl_voices = 0,
-	.max_opm_voices = 1,
-	.max_opn_voices = 0,
+	.max_opm_voices = 0,
+	.max_opn_voices = 1,
 };
 #endif
