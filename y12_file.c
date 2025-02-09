@@ -134,21 +134,24 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	if(bank->num_opn_voices <= pos->opn) return -1;
 	struct y12_file f;
-	strcpy(f.name, bank->opn_voices[pos->opn].name);
-	strcpy(f.dumper, bank->opn_voices[pos->opn].dumper);
-	strcpy(f.game, bank->opn_voices[pos->opn].game);
-	f.name_len = strlen(bank->opn_voices[pos->opn].name);
-	f.dumper_len = strlen(bank->opn_voices[pos->opn].dumper);
-	f.game_len = strlen(bank->opn_voices[pos->opn].game);
-	f.fb = bank->opn_voices[pos->opn].fb_con >> 3;
-	f.alg = bank->opn_voices[pos->opn].fb_con & 0x07;
+	y12_file_init(&f);
+	opn_voice* voice = &bank->opn_voices[pos->opn];
+	if (!voice) return -1;
+	memcpy(f.name, voice->name, 15);
+	memcpy(f.dumper, voice->dumper, 15);
+	memcpy(f.game, voice->game, 15);
+	f.name_len = strlen(f.name);
+	f.dumper_len = strlen(f.dumper);
+	f.game_len = strlen(f.game);
+	f.fb = opn_voice_get_fb(voice);
+	f.alg = opn_voice_get_con(voice);
 	for(int i = 0; i < 4; i++) {
-		f.operators[i].mul_dt = bank->opn_voices[pos->opn].operators[i].dt_mul;
+		f.operators[i].mul_dt = voice->operators[i].dt_mul;
 		f.operators[i].tl = opn_voice_get_operator_tl(bank->opn_voices + pos->opn, i);
-		f.operators[i].ar_rs = bank->opn_voices[pos->opn].operators[i].ks_ar;
-		f.operators[i].dr_am = bank->opn_voices[pos->opn].operators[i].am_dr;
+		f.operators[i].ar_rs = voice->operators[i].ks_ar;
+		f.operators[i].dr_am = voice->operators[i].am_dr;
 		f.operators[i].sr = opn_voice_get_operator_sr(bank->opn_voices + pos->opn, i);
-		f.operators[i].rr_sl = bank->opn_voices[pos->opn].operators[i].sl_rr;
+		f.operators[i].rr_sl = voice->operators[i].sl_rr;
 	}
 	pos->opn++;
 	return y12_file_save(&f, write_fn, data_ptr);

@@ -109,18 +109,21 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	if(bank->num_opn_voices <= pos->opn) return -1;	
 	struct tfi_file f;
-	f.fb = bank->opn_voices[pos->opn].fb_con >> 3;
-	f.alg = bank->opn_voices[pos->opn].fb_con & 0x07;
+	tfi_file_init(&f);
+	opn_voice* voice = &bank->opn_voices[pos->opn];
+	if (!voice) return - 1;
+	f.fb = opn_voice_get_fb(voice);
+	f.alg = opn_voice_get_con(voice);
 	for(int i = 0; i < 4; i++) {
-		f.operators[i].dt = bank->opn_voices[pos->opn].operators[i].dt_mul >> 3;
-		f.operators[i].mul = bank->opn_voices[pos->opn].operators[i].dt_mul & 0x07;
-		f.operators[i].tl = opn_voice_get_operator_tl(bank->opn_voices + pos->opn, i);
-		f.operators[i].rs = bank->opn_voices[pos->opn].operators[i].ks_ar >> 6;
-		f.operators[i].ar = bank->opn_voices[pos->opn].operators[i].ks_ar & 0x1f;
-		f.operators[i].dr = bank->opn_voices[pos->opn].operators[i].am_dr;
-		f.operators[i].sr = opn_voice_get_operator_sr(bank->opn_voices + pos->opn, i);
-		f.operators[i].sl = bank->opn_voices[pos->opn].operators[i].sl_rr >> 4;
-		f.operators[i].rr = bank->opn_voices[pos->opn].operators[i].sl_rr & 0x0f;
+		f.operators[i].dt = opn_voice_get_operator_dt(voice, i);
+		f.operators[i].mul = opn_voice_get_operator_mul(voice, i);
+		f.operators[i].tl = opn_voice_get_operator_tl(voice, i);
+		f.operators[i].rs = opn_voice_get_operator_ks(voice, i);
+		f.operators[i].ar = opn_voice_get_operator_ar(voice, i);
+		f.operators[i].dr = opn_voice_get_operator_dr(voice, i);
+		f.operators[i].sr = opn_voice_get_operator_sr(voice, i);
+		f.operators[i].sl = opn_voice_get_operator_sl(voice, i);
+		f.operators[i].rr = opn_voice_get_operator_rr(voice, i);
 	}
 	pos->opn++;
 	return tfi_file_save(&f, write_fn, data_ptr);
