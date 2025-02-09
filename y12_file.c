@@ -135,7 +135,7 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 	if(bank->num_opn_voices <= pos->opn) return -1;
 	struct y12_file f;
 	y12_file_init(&f);
-	opn_voice* voice = &bank->opn_voices[pos->opn];
+	struct opn_voice* voice = &bank->opn_voices[pos->opn];
 	if (!voice) return -1;
 	memcpy(f.name, voice->name, 15);
 	memcpy(f.dumper, voice->dumper, 15);

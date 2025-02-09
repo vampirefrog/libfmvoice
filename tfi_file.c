@@ -110,7 +110,7 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 	if(bank->num_opn_voices <= pos->opn) return -1;	
 	struct tfi_file f;
 	tfi_file_init(&f);
-	opn_voice* voice = &bank->opn_voices[pos->opn];
+	struct opn_voice* voice = &bank->opn_voices[pos->opn];
 	if (!voice) return - 1;
 	f.fb = opn_voice_get_fb(voice);
 	f.alg = opn_voice_get_con(voice);
