@@ -43,6 +43,43 @@ int op3_file_load(struct op3_file *f, uint8_t *data, size_t data_len) {
 	return 0;
 }
 
+int op3_file_save(struct op3_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	uint8_t buf[8192] = { 0 };
+	strcpy((char*)&buf[0], "Junglevision Patch File\x1A");
+	int bc = 32;
+	buf[bc++] = f->count_melodic & 0xff;
+	buf[bc++] = f->count_melodic >> 8;
+	buf[bc++] = f->count_percussive & 0xff;
+	buf[bc++] = f->count_percussive >> 8;
+	buf[bc++] = f->start_melodic & 0xff;
+	buf[bc++] = f->start_melodic >> 8;
+	buf[bc++] = f->start_percussive & 0xff;
+	buf[bc++] = f->start_percussive >> 8;
+
+#define WRITE_OP(o) \
+	buf[bc++] = inst->op[o].ave_kvm; \
+	buf[bc++] = inst->op[o].ksl_tl; \
+	buf[bc++] = inst->op[o].ar_dr; \
+	buf[bc++] = inst->op[o].sl_rr; \
+	buf[bc++] = inst->op[o].ws;
+
+#define WRITE_SET(type) \
+	for(int i = 0; i < f->count_##type; i++) { \
+		struct op3_file_instrument *inst = &f->type[i]; \
+		buf[bc++] = inst->en_4op; \
+		buf[bc++] = inst->percnotenum; \
+		WRITE_OP(0) \
+		buf[bc++] = inst->fb_con12; \
+		WRITE_OP(1) \
+		WRITE_OP(2) \
+		buf[bc++] = inst->fb_con34; \
+		WRITE_OP(3) \
+	}
+
+	WRITE_SET(melodic)
+	WRITE_SET(percussive)
+	return 0;
+}
 #ifdef HAVE_STDIO
 static void op3_dump_instrument(struct op3_file_instrument *inst) {
 	printf("en_4op=%d percnotenum=%d\n", inst->en_4op, inst->percnotenum);
@@ -107,6 +144,22 @@ static int opl_voice_from_op3_file_instrument(struct opl_voice *v, struct op3_fi
 	return 0;
 }
 
+static int op3_file_instrument_from_opl_voice(struct op3_file_instrument *inst, struct opl_voice *v) {
+	inst->en_4op = v->en_4op;
+	inst->percnotenum = v->perc_inst;
+	inst->fb_con12 = v->ch_fb_cnt[0] & ~0xf0;
+	inst->fb_con34 = v->ch_fb_cnt[1] & ~0xf0;
+	for(int i = 0; i < 4; i++) {
+		struct opl_voice_operator *op = &v->operators[i];
+		struct op3_file_instrument_op *op3 = &inst->op[i];
+		op3->ave_kvm = op->am_vib_eg_ksr_mul;
+		op3->ksl_tl = op->ksl_tl;
+		op3->ar_dr = op->ar_dr;
+		op3->sl_rr = op->sl_rr;
+		op3->ws = op->ws;
+	}
+	return 0;
+}
 static int load(void *data, int data_len, struct fm_voice_bank *bank) {
 	struct op3_file f;
 	int r = op3_file_load(&f, data, data_len);
@@ -125,7 +178,20 @@ static int load(void *data, int data_len, struct fm_voice_bank *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
-	return -1;
+	if(bank->num_opl_voices <= pos->opl) return -1;
+	struct op3_file f;
+	op3_file_init(&f);
+	struct opl_voice *voice = &bank->opl_voices[pos->opl];
+	f.count_melodic = bank->num_opl_voices;
+	f.count_percussive = 0;
+	f.start_melodic = 0;
+	f.start_percussive = 0;
+	for(int i = 0; i < f.count_melodic; i++) {
+		op3_file_instrument_from_opl_voice(&f.melodic[i], voice);
+		voice++;
+	}
+	pos->opl++;
+	return op3_file_save(&f, write_fn, data_ptr);
 }
 
 struct loader op3_file_loader = {

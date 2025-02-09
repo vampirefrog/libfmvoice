@@ -128,8 +128,8 @@ static int load(void *data, int data_len, struct fm_voice_bank *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
-	struct ins_file ins;
 	if(bank->num_opn_voices <= pos->opn) return -1;
+	struct ins_file ins;
 	ins.name = strdup(bank->opn_voices[pos->opn].name);
 	if(!ins.name) return -1;
 	ins.name_len = strlen(bank->opn_voices[pos->opn].name);

@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define DMP_FILE_GENESIS 1
-
 struct dmp_file_operator {
 	uint8_t
 		mult, tl,
@@ -13,7 +11,7 @@ struct dmp_file_operator {
 };
 
 struct dmp_file {
-	uint8_t version, mode;
+	uint8_t version, mode, system;
 	uint8_t num_operators, lfo, fb, alg;
 	uint8_t lfo2;
 	struct dmp_file_operator operators[4];

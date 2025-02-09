@@ -391,6 +391,7 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	if(bank->num_opm_voices <= pos->opm) return -1;
 	struct opm_file opm_file;
 	opm_file_init(&opm_file);
 	for(int i = pos->opm; i < bank->num_opm_voices; i++) {

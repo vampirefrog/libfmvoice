@@ -33,6 +33,32 @@ int sbi_file_load(struct sbi_file *f, uint8_t *data, size_t data_len) {
 	return 0;
 }
 
+int sbi_file_save(struct sbi_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	uint8_t buf[52] = { 0 };
+	int bc = 0;
+	buf[bc++] = 'S';
+	buf[bc++] = 'B';
+	buf[bc++] = 'I';
+	buf[bc++] = 0x1a;
+	memcpy(&buf[bc], f->name, 32);
+	bc += 32;
+	buf[bc++] = f->am_vib_eg_ksr_mul[0];
+	buf[bc++] = f->am_vib_eg_ksr_mul[1];
+	buf[bc++] = f->ksl_tl[0];
+	buf[bc++] = f->ksl_tl[1];
+	buf[bc++] = f->ar_dr[0];
+	buf[bc++] = f->ar_dr[1];
+	buf[bc++] = f->sl_rr[0];
+	buf[bc++] = f->sl_rr[1];
+	buf[bc++] = f->ws[0];
+	buf[bc++] = f->ws[1];
+	buf[bc++] = f->fb_con;
+	buf[bc++] = f->perc_voice;
+	buf[bc++] = f->transpose;
+	buf[bc++] = f->perc_pitch;
+	return write_fn(buf, 52, data_ptr);
+}
+
 #ifdef HAVE_STDIO
 void sbi_file_dump(struct sbi_file *f) {
 	printf("name=%.32s\n", f->name);
@@ -84,7 +110,23 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
-	return -1;
+	if(bank->num_opl_voices <= pos->opl) return -1;
+	struct sbi_file f;
+	sbi_file_init(&f);
+	struct opl_voice *voice = &bank->opl_voices[pos->opl];
+	memcpy(f.name, voice->name, 32);
+	f.perc_voice = voice->perc_inst;
+	f.fb_con = voice->ch_fb_cnt[0];
+	for(int i = 0; i < 2; i++) {
+		struct opl_voice_operator *op = &voice->operators[i];
+		f.am_vib_eg_ksr_mul[i] = op->am_vib_eg_ksr_mul;
+		f.ksl_tl[i] = op->ksl_tl;
+		f.ar_dr[i] = op->ar_dr;
+		f.sl_rr[i] = op->sl_rr;
+		f.ws[i] = op->ws;
+	}
+	pos->opl++;
+	return sbi_file_save(&f, write_fn, data_ptr);
 }
 
 struct loader sbi_file_loader = {
