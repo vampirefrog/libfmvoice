@@ -398,7 +398,7 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 		struct opm_file_voice fv;
 		memset(&fv, 0, sizeof(fv));
 		fv.number = i;
-		if(v->name && strlen(v->name) > 0) snprintf(fv.name, sizeof(fv.name), v->name);
+		if(v->name && strlen(v->name) > 0) snprintf(fv.name, sizeof(fv.name), "%s", v->name);
 		else snprintf(fv.name, sizeof(fv.name), "Instrument %d", i);
 		fv.lfo_lfrq = v->lfrq;
 		fv.lfo_amd = v->amd;
