@@ -38,26 +38,25 @@ int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 
 int y12_file_save(struct y12_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	uint8_t buf[128] = { 0 };
-	int bc = 0;
+	uint8_t* p = buf;
 	for(int i = 0; i < 4; i++) {
-		buf[bc++] = f->operators[i].mul_dt;
-		buf[bc++] = f->operators[i].tl;
-		buf[bc++] = f->operators[i].ar_rs;
-		buf[bc++] = f->operators[i].dr_am;
-		buf[bc++] = f->operators[i].sr;
-		buf[bc++] = f->operators[i].rr_sl;
-		buf[bc++] = f->operators[i].ssg;
-		bc += 9;
+		*p++ = f->operators[i].mul_dt;
+		*p++ = f->operators[i].tl;
+		*p++ = f->operators[i].ar_rs;
+		*p++ = f->operators[i].dr_am;
+		*p++ = f->operators[i].sr;
+		*p++ = f->operators[i].rr_sl;
+		*p++ = f->operators[i].ssg;
+		p += 9;
 	}
-	buf[bc++] = f->alg;
-	buf[bc++] = f->fb;
-	bc += 14;
-	memcpy(&buf[bc], f->name, 16);
-	bc += 16;
-	memcpy(&buf[bc], f->dumper, 16);
-	bc += 16;
-	memcpy(&buf[bc], f->game, 16);
-	bc += 16;
+	*p++ = f->alg;
+	*p++ = f->fb;
+	p += 14;
+	memcpy(p, f->name, 16);
+	p += 16;
+	memcpy(p, f->dumper, 16);
+	p += 16;
+	memcpy(p, f->game, 16);
 	return write_fn(buf, 128, data_ptr);
 }
 
@@ -164,7 +163,7 @@ struct loader y12_file_loader = {
 	.description = "Y12",
 	.file_ext = "y12",
 	.max_opl_voices = 0,
-	.max_opm_voices = 1,
-	.max_opn_voices = 0,
+	.max_opm_voices = 0,
+	.max_opn_voices = 1,
 };
 #endif

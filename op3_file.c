@@ -46,33 +46,33 @@ int op3_file_load(struct op3_file *f, uint8_t *data, size_t data_len) {
 int op3_file_save(struct op3_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	uint8_t buf[8192] = { 0 };
 	strcpy((char*)&buf[0], "Junglevision Patch File\x1A");
-	int bc = 32;
-	buf[bc++] = f->count_melodic & 0xff;
-	buf[bc++] = f->count_melodic >> 8;
-	buf[bc++] = f->count_percussive & 0xff;
-	buf[bc++] = f->count_percussive >> 8;
-	buf[bc++] = f->start_melodic & 0xff;
-	buf[bc++] = f->start_melodic >> 8;
-	buf[bc++] = f->start_percussive & 0xff;
-	buf[bc++] = f->start_percussive >> 8;
+	uint8_t* p = buf;
+	*p++ = f->count_melodic & 0xff;
+	*p++ = f->count_melodic >> 8;
+	*p++ = f->count_percussive & 0xff;
+	*p++ = f->count_percussive >> 8;
+	*p++ = f->start_melodic & 0xff;
+	*p++ = f->start_melodic >> 8;
+	*p++ = f->start_percussive & 0xff;
+	*p++ = f->start_percussive >> 8;
 
 #define WRITE_OP(o) \
-	buf[bc++] = inst->op[o].ave_kvm; \
-	buf[bc++] = inst->op[o].ksl_tl; \
-	buf[bc++] = inst->op[o].ar_dr; \
-	buf[bc++] = inst->op[o].sl_rr; \
-	buf[bc++] = inst->op[o].ws;
+	*p++ = inst->op[o].ave_kvm; \
+	*p++ = inst->op[o].ksl_tl; \
+	*p++ = inst->op[o].ar_dr; \
+	*p++ = inst->op[o].sl_rr; \
+	*p++ = inst->op[o].ws;
 
 #define WRITE_SET(type) \
 	for(int i = 0; i < f->count_##type; i++) { \
 		struct op3_file_instrument *inst = &f->type[i]; \
-		buf[bc++] = inst->en_4op; \
-		buf[bc++] = inst->percnotenum; \
+		*p++ = inst->en_4op; \
+		*p++ = inst->percnotenum; \
 		WRITE_OP(0) \
-		buf[bc++] = inst->fb_con12; \
+		*p++ = inst->fb_con12; \
 		WRITE_OP(1) \
 		WRITE_OP(2) \
-		buf[bc++] = inst->fb_con34; \
+		*p++ = inst->fb_con34; \
 		WRITE_OP(3) \
 	}
 
@@ -160,6 +160,7 @@ static int op3_file_instrument_from_opl_voice(struct op3_file_instrument *inst, 
 	}
 	return 0;
 }
+
 static int load(void *data, int data_len, struct fm_voice_bank *bank) {
 	struct op3_file f;
 	int r = op3_file_load(&f, data, data_len);

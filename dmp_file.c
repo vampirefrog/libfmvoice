@@ -5,9 +5,6 @@
 #include "dmp_file.h"
 #include "tools.h"
 
-#define SYSTEM_YM2612_OPN		0x02
-#define SYSTEM_YM2151_OPM		0x08
-
 void dmp_file_init(struct dmp_file *f) {
 	memset(f, 0, sizeof(*f));
 }
@@ -25,7 +22,7 @@ int dmp_file_load(struct dmp_file *f, uint8_t *data, size_t data_len) {
 		return -1;
 	}
 
-	f->system = SYSTEM_YM2612_OPN;
+	f->system = DMP_SYSTEM_YM2612_OPN;
 	f->version = data[0];
 	if (data[0] <= 10) {
 		f->mode = data[1];
@@ -34,7 +31,7 @@ int dmp_file_load(struct dmp_file *f, uint8_t *data, size_t data_len) {
 		f->mode = data[2];
 	}
 
-	if (f->system != SYSTEM_YM2612_OPN && f->system != SYSTEM_YM2151_OPM) {
+	if (f->system != DMP_SYSTEM_YM2612_OPN && f->system != DMP_SYSTEM_YM2151_OPM) {
 		fprintf(stderr, "Unsupported system %d\n", f->system);
 		return -1;
 	}
@@ -80,25 +77,25 @@ int dmp_file_load(struct dmp_file *f, uint8_t *data, size_t data_len) {
 
 int dmp_file_save(struct dmp_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	uint8_t buf[50] = { 0 };
-	int bc = 0;
-	buf[bc++] = 0x0a; // version 10
-	buf[bc++] = 1; // instrument type, 1 = FM
-	buf[bc++] = f->lfo;
-	buf[bc++] = f->fb;
-	buf[bc++] = f->alg;
-	buf[bc++] = f->lfo2;
+	uint8_t* p = buf;
+	*p++ = 0x0a; // version 10
+	*p++ = 1; // instrument type, 1 = FM
+	*p++ = f->lfo;
+	*p++ = f->fb;
+	*p++ = f->alg;
+	*p++ = f->lfo2;
 	for(int i = 0; i < f->num_operators; i++) {
-		buf[bc++] = f->operators[i].mult;
-		buf[bc++] = f->operators[i].tl;
-		buf[bc++] = f->operators[i].ar;
-		buf[bc++] = f->operators[i].dr;
-		buf[bc++] = f->operators[i].sl;
-		buf[bc++] = f->operators[i].rr;
-		buf[bc++] = f->operators[i].am;
-		buf[bc++] = f->operators[i].ksr;
-		buf[bc++] = f->operators[i].dt;
-		buf[bc++] = f->operators[i].d2r;
-		buf[bc++] = f->operators[i].ssg;
+		*p++ = f->operators[i].mult;
+		*p++ = f->operators[i].tl;
+		*p++ = f->operators[i].ar;
+		*p++ = f->operators[i].dr;
+		*p++ = f->operators[i].sl;
+		*p++ = f->operators[i].rr;
+		*p++ = f->operators[i].am;
+		*p++ = f->operators[i].ksr;
+		*p++ = f->operators[i].dt;
+		*p++ = f->operators[i].d2r;
+		*p++ = f->operators[i].ssg;
 	}
 	return write_fn(buf, 50, data_ptr);
 }
@@ -168,7 +165,6 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 	f.lfo = opn_voice_get_ams(voice);
 	f.lfo2 = opn_voice_get_pms(voice);
 	for(int i = 0; i < 4; i++) {
-		struct opn_voice_operator *op = &voice->operators[i];
 		struct dmp_file_operator *fop = &f.operators[i];
 		fop->dt = opn_voice_get_operator_dt(voice, i);
 		fop->mult = opn_voice_get_operator_mul(voice, i);
@@ -181,8 +177,6 @@ static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, 
 		fop->sl = opn_voice_get_operator_sl(voice, i);
 		fop->rr = opn_voice_get_operator_rr(voice, i);
 		fop->ssg = opn_voice_get_operator_ssg_eg(voice, i);
-
-
 	}
 	pos->opn++;
 	return dmp_file_save(&f, write_fn, data_ptr);
@@ -194,8 +188,8 @@ struct loader dmp_file_loader = {
 	.name = "DMP",
 	.description = "DefleMask Preset Format",
 	.file_ext = "dmp",
-	.max_opl_voices = 1,
+	.max_opl_voices = 0,
 	.max_opm_voices = 0,
-	.max_opn_voices = 0,
+	.max_opn_voices = 1,
 };
 #endif

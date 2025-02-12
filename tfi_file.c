@@ -22,14 +22,14 @@ $0C...		ssg
 */
 
 // get signed DT from unsigned DT
-static int DT_u2s(int dt_unsigned) {
+static int convert_dt_u2s(int dt_unsigned) {
 	int dt_signed = dt_unsigned & 3;
 	if (dt_unsigned & 4) return -dt_signed;
 	else return dt_signed;
 }
 
 // get unsigned DT from signed DT
-static int DT_s2u(int dt_signed) {
+static int convert_dt_s2u(int dt_signed) {
 	if (dt_signed < 0) return ((-dt_signed) & 3) | 4;
 	else return dt_signed & 3;
 }
@@ -40,16 +40,12 @@ void tfi_file_init(struct tfi_file *f) {
 
 int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 	if(data_len != 42) return -1;
-
 	uint8_t *p = data;
-
 	tfi->alg = *p++;
 	tfi->fb = *p++;
-
 	for(int i = 0; i < 4; i++) {
 		tfi->operators[i].mul = *p++;
-		// tfi->operators[i].dt = *p++;
-		tfi->operators[i].dt = DT_s2u((*p++ & 7) - 3);
+		tfi->operators[i].dt = convert_dt_s2u((*p++ & 7) - 3);
 		tfi->operators[i].tl = *p++;
 		tfi->operators[i].rs = *p++;
 		tfi->operators[i].ar = *p++;
@@ -59,27 +55,25 @@ int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 		tfi->operators[i].sl = *p++;
 		tfi->operators[i].ssg_eg = *p++;
 	}
-
 	return 0;
 }
 
 int tfi_file_save(struct tfi_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	uint8_t buf[42] = { 0 };
-	int bc = 0;
-	buf[bc++] = f->alg;
-	buf[bc++] = f->fb;
+	uint8_t *p = buf;
+	*p++ = f->alg;
+	*p++ = f->fb;
 	for(int i = 0; i < 4; i++) {
-		buf[bc++] = f->operators[i].mul;
-		//buf[bc++] = f->operators[i].dt;
-		buf[bc++] = 3 + DT_u2s(f->operators[i].dt);
-		buf[bc++] = f->operators[i].tl;
-		buf[bc++] = f->operators[i].rs;
-		buf[bc++] = f->operators[i].ar;
-		buf[bc++] = f->operators[i].dr;
-		buf[bc++] = f->operators[i].sr;
-		buf[bc++] = f->operators[i].rr;
-		buf[bc++] = f->operators[i].sl;
-		buf[bc++] = f->operators[i].ssg_eg;
+		*p++ = f->operators[i].mul;
+		*p++ = 3 + convert_dt_u2s(f->operators[i].dt);
+		*p++ = f->operators[i].tl;
+		*p++ = f->operators[i].rs;
+		*p++ = f->operators[i].ar;
+		*p++ = f->operators[i].dr;
+		*p++ = f->operators[i].sr;
+		*p++ = f->operators[i].rr;
+		*p++ = f->operators[i].sl;
+		*p++ = f->operators[i].ssg_eg;
 	}
 	return write_fn(buf, 42, data_ptr);
 }

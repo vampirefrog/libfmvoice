@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define DMP_SYSTEM_YM2612_OPN		0x02
+#define DMP_SYSTEM_YM2151_OPM		0x08
+
 struct dmp_file_operator {
 	uint8_t
 		mult, tl,
