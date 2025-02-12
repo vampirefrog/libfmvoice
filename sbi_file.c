@@ -10,9 +10,7 @@ void sbi_file_init(struct sbi_file *f) {
 
 int sbi_file_load(struct sbi_file *f, uint8_t *data, size_t data_len) {
 	if(data_len < 47 || data_len > 52) return -1;
-
 	if(data[0] != 'S' || data[1] != 'B' || data[2] != 'I' || (data[3] != 0x1a && data[3] != 0x1d)) return -1;
-
 	memcpy(f->name, &data[4], 32);
 
 	uint8_t *b = data + 36;
@@ -35,27 +33,27 @@ int sbi_file_load(struct sbi_file *f, uint8_t *data, size_t data_len) {
 
 int sbi_file_save(struct sbi_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
 	uint8_t buf[52] = { 0 };
-	int bc = 0;
-	buf[bc++] = 'S';
-	buf[bc++] = 'B';
-	buf[bc++] = 'I';
-	buf[bc++] = 0x1a;
-	memcpy(&buf[bc], f->name, 32);
-	bc += 32;
-	buf[bc++] = f->am_vib_eg_ksr_mul[0];
-	buf[bc++] = f->am_vib_eg_ksr_mul[1];
-	buf[bc++] = f->ksl_tl[0];
-	buf[bc++] = f->ksl_tl[1];
-	buf[bc++] = f->ar_dr[0];
-	buf[bc++] = f->ar_dr[1];
-	buf[bc++] = f->sl_rr[0];
-	buf[bc++] = f->sl_rr[1];
-	buf[bc++] = f->ws[0];
-	buf[bc++] = f->ws[1];
-	buf[bc++] = f->fb_con;
-	buf[bc++] = f->perc_voice;
-	buf[bc++] = f->transpose;
-	buf[bc++] = f->perc_pitch;
+	uint8_t* p = buf;
+	*p++ = 'S';
+	*p++ = 'B';
+	*p++ = 'I';
+	*p++ = 0x1a;
+	memcpy(p, f->name, 32);
+	p += 32;
+	*p++ = f->am_vib_eg_ksr_mul[0];
+	*p++ = f->am_vib_eg_ksr_mul[1];
+	*p++ = f->ksl_tl[0];
+	*p++ = f->ksl_tl[1];
+	*p++ = f->ar_dr[0];
+	*p++ = f->ar_dr[1];
+	*p++ = f->sl_rr[0];
+	*p++ = f->sl_rr[1];
+	*p++ = f->ws[0];
+	*p++ = f->ws[1];
+	*p++ = f->fb_con;
+	*p++ = f->perc_voice;
+	*p++ = f->transpose;
+	*p++ = f->perc_pitch;
 	return write_fn(buf, 52, data_ptr);
 }
 
