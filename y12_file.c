@@ -37,7 +37,27 @@ int y12_file_load(struct y12_file *f, uint8_t *data, size_t data_len) {
 }
 
 int y12_file_save(struct y12_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
-	return -1;
+	uint8_t buf[128] = { 0 };
+	uint8_t* p = buf;
+	for(int i = 0; i < 4; i++) {
+		*p++ = f->operators[i].mul_dt;
+		*p++ = f->operators[i].tl;
+		*p++ = f->operators[i].ar_rs;
+		*p++ = f->operators[i].dr_am;
+		*p++ = f->operators[i].sr;
+		*p++ = f->operators[i].rr_sl;
+		*p++ = f->operators[i].ssg;
+		p += 9;
+	}
+	*p++ = f->alg;
+	*p++ = f->fb;
+	p += 14;
+	memcpy(p, f->name, 16);
+	p += 16;
+	memcpy(p, f->dumper, 16);
+	p += 16;
+	memcpy(p, f->game, 16);
+	return write_fn(buf, 128, data_ptr);
 }
 
 #ifdef HAVE_STDIO
@@ -111,8 +131,27 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	if(bank->num_opn_voices <= pos->opn) return -1;
 	struct y12_file f;
-
+	y12_file_init(&f);
+	struct opn_voice* voice = &bank->opn_voices[pos->opn];
+	if (!voice) return -1;
+	memcpy(f.name, voice->name, 15);
+	memcpy(f.dumper, voice->dumper, 15);
+	memcpy(f.game, voice->game, 15);
+	f.name_len = strlen(f.name);
+	f.dumper_len = strlen(f.dumper);
+	f.game_len = strlen(f.game);
+	f.fb = opn_voice_get_fb(voice);
+	f.alg = opn_voice_get_con(voice);
+	for(int i = 0; i < 4; i++) {
+		f.operators[i].mul_dt = voice->operators[i].dt_mul;
+		f.operators[i].tl = opn_voice_get_operator_tl(bank->opn_voices + pos->opn, i);
+		f.operators[i].ar_rs = voice->operators[i].ks_ar;
+		f.operators[i].dr_am = voice->operators[i].am_dr;
+		f.operators[i].sr = opn_voice_get_operator_sr(bank->opn_voices + pos->opn, i);
+		f.operators[i].rr_sl = voice->operators[i].sl_rr;
+	}
 	pos->opn++;
 	return y12_file_save(&f, write_fn, data_ptr);
 }
@@ -124,7 +163,7 @@ struct loader y12_file_loader = {
 	.description = "Y12",
 	.file_ext = "y12",
 	.max_opl_voices = 0,
-	.max_opm_voices = 1,
-	.max_opn_voices = 0,
+	.max_opm_voices = 0,
+	.max_opn_voices = 1,
 };
 #endif

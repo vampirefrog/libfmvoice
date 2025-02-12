@@ -21,6 +21,19 @@ $0C...		ssg
 }
 */
 
+// get signed DT from unsigned DT
+static int convert_dt_u2s(int dt_unsigned) {
+	int dt_signed = dt_unsigned & 3;
+	if (dt_unsigned & 4) return -dt_signed;
+	else return dt_signed;
+}
+
+// get unsigned DT from signed DT
+static int convert_dt_s2u(int dt_signed) {
+	if (dt_signed < 0) return ((-dt_signed) & 3) | 4;
+	else return dt_signed & 3;
+}
+
 void tfi_file_init(struct tfi_file *f) {
 	memset(f, 0, sizeof(*f));
 }
@@ -35,7 +48,7 @@ int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 
 	for(int i = 0; i < 4; i++) {
 		tfi->operators[i].mul = *p++;
-		tfi->operators[i].dt = *p++;
+		tfi->operators[i].dt = convert_dt_s2u((*p++ & 7) - 3);
 		tfi->operators[i].tl = *p++;
 		tfi->operators[i].rs = *p++;
 		tfi->operators[i].ar = *p++;
@@ -50,7 +63,23 @@ int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 }
 
 int tfi_file_save(struct tfi_file *f, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
-	return -1;
+	uint8_t buf[42] = { 0 };
+	uint8_t *p = buf;
+	*p++ = f->alg;
+	*p++ = f->fb;
+	for(int i = 0; i < 4; i++) {
+		*p++ = f->operators[i].mul;
+		*p++ = 3 + convert_dt_u2s(f->operators[i].dt);
+		*p++ = f->operators[i].tl;
+		*p++ = f->operators[i].rs;
+		*p++ = f->operators[i].ar;
+		*p++ = f->operators[i].dr;
+		*p++ = f->operators[i].sr;
+		*p++ = f->operators[i].rr;
+		*p++ = f->operators[i].sl;
+		*p++ = f->operators[i].ssg_eg;
+	}
+	return write_fn(buf, 42, data_ptr);
 }
 
 #ifdef HAVE_STDIO
@@ -91,7 +120,24 @@ static int load(void *data, int data_len, struct fm_voice_bank  *bank) {
 }
 
 static int save(struct fm_voice_bank *bank, struct fm_voice_bank_position *pos, int (*write_fn)(void *, size_t, void *), void *data_ptr) {
+	if(bank->num_opn_voices <= pos->opn) return -1;	
 	struct tfi_file f;
+	tfi_file_init(&f);
+	struct opn_voice* voice = &bank->opn_voices[pos->opn];
+	if (!voice) return - 1;
+	f.fb = opn_voice_get_fb(voice);
+	f.alg = opn_voice_get_con(voice);
+	for(int i = 0; i < 4; i++) {
+		f.operators[i].dt = opn_voice_get_operator_dt(voice, i);
+		f.operators[i].mul = opn_voice_get_operator_mul(voice, i);
+		f.operators[i].tl = opn_voice_get_operator_tl(voice, i);
+		f.operators[i].rs = opn_voice_get_operator_ks(voice, i);
+		f.operators[i].ar = opn_voice_get_operator_ar(voice, i);
+		f.operators[i].dr = opn_voice_get_operator_dr(voice, i);
+		f.operators[i].sr = opn_voice_get_operator_sr(voice, i);
+		f.operators[i].sl = opn_voice_get_operator_sl(voice, i);
+		f.operators[i].rr = opn_voice_get_operator_rr(voice, i);
+	}
 	pos->opn++;
 	return tfi_file_save(&f, write_fn, data_ptr);
 }
