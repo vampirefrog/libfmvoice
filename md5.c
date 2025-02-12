@@ -28,7 +28,7 @@
 #include <sys/types.h>
 
 # include <string.h>
-#if STDC_HEADERS || defined _LIBC
+#if STDC_HEADERS || defined _LIBC || defined _MSC_VER
 # include <stdlib.h>
 #else
 # ifndef HAVE_MEMCPY

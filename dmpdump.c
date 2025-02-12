@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 			continue;
 		}
 		struct dmp_file dmp;
-		if(dmp_file_load(&dmp, data, data_len, DMP_FILE_GENESIS) != 0) {
+		if(dmp_file_load(&dmp, data, data_len) != 0) {
 			fprintf(stderr, "Could not load %s\n", argv[i]);
 			continue;
 		}

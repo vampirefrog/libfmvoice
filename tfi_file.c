@@ -40,12 +40,9 @@ void tfi_file_init(struct tfi_file *f) {
 
 int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 	if(data_len != 42) return -1;
-
 	uint8_t *p = data;
-
 	tfi->alg = *p++;
 	tfi->fb = *p++;
-
 	for(int i = 0; i < 4; i++) {
 		tfi->operators[i].mul = *p++;
 		tfi->operators[i].dt = convert_dt_s2u((*p++ & 7) - 3);
@@ -58,7 +55,6 @@ int tfi_file_load(struct tfi_file *tfi, uint8_t *data, size_t data_len) {
 		tfi->operators[i].sl = *p++;
 		tfi->operators[i].ssg_eg = *p++;
 	}
-
 	return 0;
 }
 
