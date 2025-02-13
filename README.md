@@ -136,3 +136,14 @@ Building with emscripten
 ```sh
 emmake make libfmvoice.a
 ```
+
+Formulae
+--------
+
+OPM LFO
+
+f_{LFO} = \frac{f_{master}}{(8 \times (256 - R))}
+
+OPN LFO
+
+f_{LFO} = \frac{f_{master}}{2^{LFO_DIV} \times (108 - LFO_FREQ)}
